@@ -1,4 +1,4 @@
-name: Speed Test
+name: Daily Speed Test
 
 on:
   schedule:
@@ -16,13 +16,18 @@ jobs:
       uses: actions/setup-go@v4
       with:
         go-version: '1.21'
+        
+    - name: Install dependencies
+      run: go mod download
 
     - name: Build
-      run: go build -v ./...
+      run: |
+        CGO_ENABLED=0 go build -o clash-speedtest .
+        chmod +x ./clash-speedtest
 
     - name: Run speed test
       run: |
-        ./clash-speedtest -s sources.txt -timeout 2 --min-speed 10 --max-latency 1000ms --output result.yml
+        ./clash-speedtest -s sources.txt -timeout 2s --min-speed 10 --max-latency 1000ms --output result.yml
 
     - name: Upload test results
       uses: actions/upload-artifact@v3
