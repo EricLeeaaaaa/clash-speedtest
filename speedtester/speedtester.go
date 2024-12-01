@@ -29,6 +29,7 @@ type Config struct {
 	UploadSize   int
 	Timeout      time.Duration
 	Concurrent   int
+	NamePrefix   string // 新增: 节点名称前缀
 }
 
 type SpeedTester struct {
@@ -98,11 +99,28 @@ func (st *SpeedTester) LoadProxies() (map[string]*CProxy, error) {
 				return nil, fmt.Errorf("proxy %d: %w", i, err)
 			}
 
-			if _, exist := proxies[proxy.Name()]; exist {
-				return nil, fmt.Errorf("proxy %s is the duplicate name", proxy.Name())
+			proxyName := proxy.Name()
+			if st.config.NamePrefix != "" {
+				proxyName = st.config.NamePrefix + proxyName
+				config["name"] = proxyName // 更新配置中的节点名称
 			}
-			proxies[proxy.Name()] = &CProxy{Proxy: proxy, Config: config}
+
+			if _, exist := proxies[proxyName]; exist {
+				return nil, fmt.Errorf("proxy %s is the duplicate name", proxyName)
+			}
+
+			// 使用更新后的配置重新解析代理
+			proxy, err = adapter.ParseProxy(config)
+			if err != nil {
+				return nil, fmt.Errorf("proxy %s: %w", proxyName, err)
+			}
+
+			proxies[proxyName] = &CProxy{
+				Proxy:  proxy,
+				Config: config,
+			}
 		}
+
 		for name, config := range providersConfig {
 			if name == provider.ReservedName {
 				return nil, fmt.Errorf("can not defined a provider called `%s`", provider.ReservedName)
@@ -115,9 +133,17 @@ func (st *SpeedTester) LoadProxies() (map[string]*CProxy, error) {
 				return nil, fmt.Errorf("initial proxy provider %s error: %w", pd.Name(), err)
 			}
 			for _, proxy := range pd.Proxies() {
-				proxies[fmt.Sprintf("[%s] %s", name, proxy.Name())] = &CProxy{Proxy: proxy}
+				proxyName := proxy.Name()
+				if st.config.NamePrefix != "" {
+					proxyName = st.config.NamePrefix + proxyName
+				}
+				proxies[fmt.Sprintf("[%s] %s", name, proxyName)] = &CProxy{
+					Proxy:  proxy,
+					Config: nil,
+				}
 			}
 		}
+
 		for k, p := range proxies {
 			switch p.Type() {
 			case constant.Shadowsocks, constant.ShadowsocksR, constant.Snell, constant.Socks5, constant.Http,
@@ -143,14 +169,21 @@ func (st *SpeedTester) LoadProxies() (map[string]*CProxy, error) {
 }
 
 func (st *SpeedTester) TestProxies(proxies map[string]*CProxy, fn func(result *Result)) {
-	for name, proxy := range proxies {
-		fn(st.testProxy(name, proxy))
-	}
-}
+	// 创建工作池和结果通道
+	workers := make(chan struct{}, 10) // 限制最大并发数为10
+	var wg sync.WaitGroup
 
-type testJob struct {
-	name  string
-	proxy *CProxy
+	for name, proxy := range proxies {
+		wg.Add(1)
+		workers <- struct{}{} // 获取工作槽
+		go func(name string, proxy *CProxy) {
+			defer wg.Done()
+			defer func() { <-workers }() // 释放工作槽
+			fn(st.testProxy(name, proxy))
+		}(name, proxy)
+	}
+
+	wg.Wait()
 }
 
 type Result struct {
@@ -212,69 +245,75 @@ func (st *SpeedTester) testProxy(name string, proxy *CProxy) *Result {
 		ProxyConfig: proxy.Config,
 	}
 
-	// 1. 首先进行延迟测试
-	latencyResult := st.testLatency(proxy)
-	result.Latency = latencyResult.avgLatency
-	result.Jitter = latencyResult.jitter
-	result.PacketLoss = latencyResult.packetLoss
+	// 使用context控制超时
+	ctx, cancel := context.WithTimeout(context.Background(), st.config.Timeout)
+	defer cancel()
 
-	// 如果延迟测试完全失败，直接返回
+	// 并发执行延迟测试
+	latencyChan := make(chan *latencyResult, 1)
+	go func() {
+		latencyChan <- st.testLatency(proxy.Proxy)
+	}()
+
+	select {
+	case latencyResult := <-latencyChan:
+		result.Latency = latencyResult.avgLatency
+		result.Jitter = latencyResult.jitter
+		result.PacketLoss = latencyResult.packetLoss
+	case <-ctx.Done():
+		result.PacketLoss = 100
+		return result
+	}
+
 	if result.PacketLoss == 100 {
 		return result
 	}
 
-	// 2. 并发进行下载和上传测试
 	var wg sync.WaitGroup
 	downloadResults := make(chan *downloadResult, st.config.Concurrent)
+	uploadResults := make(chan *downloadResult, st.config.Concurrent)
 
-	// 计算每个并发连接的数据大小
 	downloadChunkSize := st.config.DownloadSize / st.config.Concurrent
 	uploadChunkSize := st.config.UploadSize / st.config.Concurrent
 
-	// 启动下载测试
+	// 并发执行下载和上传测试
 	for i := 0; i < st.config.Concurrent; i++ {
-		wg.Add(1)
+		wg.Add(2)
 		go func() {
 			defer wg.Done()
-			downloadResults <- st.testDownload(proxy, downloadChunkSize)
+			downloadResults <- st.testDownload(proxy.Proxy, downloadChunkSize)
 		}()
-	}
-	wg.Wait()
-
-	uploadResults := make(chan *downloadResult, st.config.Concurrent)
-
-	// 启动上传测试
-	for i := 0; i < st.config.Concurrent; i++ {
-		wg.Add(1)
 		go func() {
 			defer wg.Done()
-			uploadResults <- st.testUpload(proxy, uploadChunkSize)
+			uploadResults <- st.testUpload(proxy.Proxy, uploadChunkSize)
 		}()
 	}
-	wg.Wait()
 
-	// 3. 汇总结果
+	go func() {
+		wg.Wait()
+		close(downloadResults)
+		close(uploadResults)
+	}()
+
 	var totalDownloadBytes, totalUploadBytes int64
 	var totalDownloadTime, totalUploadTime time.Duration
 	var downloadCount, uploadCount int
 
-	for i := 0; i < st.config.Concurrent; i++ {
-		if dr := <-downloadResults; dr != nil {
+	for dr := range downloadResults {
+		if dr != nil {
 			totalDownloadBytes += dr.bytes
 			totalDownloadTime += dr.duration
 			downloadCount++
 		}
 	}
-	close(downloadResults)
 
-	for i := 0; i < st.config.Concurrent; i++ {
-		if ur := <-uploadResults; ur != nil {
+	for ur := range uploadResults {
+		if ur != nil {
 			totalUploadBytes += ur.bytes
 			totalUploadTime += ur.duration
 			uploadCount++
 		}
 	}
-	close(uploadResults)
 
 	if downloadCount > 0 {
 		result.DownloadSize = float64(totalDownloadBytes)
@@ -301,23 +340,37 @@ func (st *SpeedTester) testLatency(proxy constant.Proxy) *latencyResult {
 	latencies := make([]time.Duration, 0, 6)
 	failedPings := 0
 
-	for i := 0; i < 6; i++ {
-		time.Sleep(100 * time.Millisecond)
+	var wg sync.WaitGroup
+	var mu sync.Mutex
 
-		start := time.Now()
-		resp, err := client.Get(fmt.Sprintf("%s/__down?bytes=0", st.config.ServerURL))
-		if err != nil {
-			failedPings++
-			continue
-		}
-		resp.Body.Close()
-		if resp.StatusCode == http.StatusOK {
-			latencies = append(latencies, time.Since(start))
-		} else {
-			failedPings++
-		}
+	// 并发执行ping测试
+	for i := 0; i < 6; i++ {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			start := time.Now()
+			resp, err := client.Get(fmt.Sprintf("%s/__down?bytes=0", st.config.ServerURL))
+			if err != nil {
+				mu.Lock()
+				failedPings++
+				mu.Unlock()
+				return
+			}
+			resp.Body.Close()
+			if resp.StatusCode == http.StatusOK {
+				mu.Lock()
+				latencies = append(latencies, time.Since(start))
+				mu.Unlock()
+			} else {
+				mu.Lock()
+				failedPings++
+				mu.Unlock()
+			}
+		}()
+		time.Sleep(50 * time.Millisecond) // 稍微降低并发强度
 	}
 
+	wg.Wait()
 	return calculateLatencyStats(latencies, failedPings)
 }
 
@@ -404,14 +457,12 @@ func calculateLatencyStats(latencies []time.Duration, failedPings int) *latencyR
 		return result
 	}
 
-	// 计算平均延迟
 	var total time.Duration
 	for _, l := range latencies {
 		total += l
 	}
 	result.avgLatency = total / time.Duration(len(latencies))
 
-	// 计算抖动
 	var variance float64
 	for _, l := range latencies {
 		diff := float64(l - result.avgLatency)

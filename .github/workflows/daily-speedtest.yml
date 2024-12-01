@@ -1,0 +1,41 @@
+name: Speed Test
+
+on:
+  schedule:
+    - cron: '0 0 * * *'  # 每天UTC 0点运行
+  workflow_dispatch:      # 允许手动触发
+
+jobs:
+  speedtest:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Go
+      uses: actions/setup-go@v4
+      with:
+        go-version: '1.21'
+
+    - name: Build
+      run: go build -v ./...
+
+    - name: Run speed test
+      run: |
+        ./clash-speedtest -s sources.txt -timeout 2 --min-speed 10 --max-latency 1000ms --output result.yml
+
+    - name: Upload test results
+      uses: actions/upload-artifact@v3
+      with:
+        name: speedtest-results
+        path: |
+          result.yml
+
+    - name: Update Results
+      if: success()
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git add result.yml
+        git commit -m "update: 更新测速结果 $(date '+%Y-%m-%d')" || echo "No changes"
+        git push || echo "No changes to push"

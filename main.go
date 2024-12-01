@@ -1,10 +1,12 @@
 package main
 
 import (
+	"bufio"
 	"flag"
 	"fmt"
 	"os"
 	"sort"
+	"strings"
 	"time"
 
 	"github.com/faceair/clash-speedtest/speedtester"
@@ -25,6 +27,7 @@ var (
 	outputPath        = flag.String("output", "", "output config file path")
 	maxLatency        = flag.Duration("max-latency", 800*time.Millisecond, "filter latency greater than this value")
 	minSpeed          = flag.Float64("min-speed", 5, "filter speed less than this value(unit: MB/s)")
+	sourcesFile       = flag.String("s", "", "sources file path containing multiple yaml sources")
 )
 
 const (
@@ -34,47 +37,130 @@ const (
 	colorReset  = "\033[0m"
 )
 
+type Source struct {
+	Name string
+	URL  string
+}
+
+func parseSources(path string) ([]Source, error) {
+	file, err := os.Open(path)
+	if err != nil {
+		return nil, err
+	}
+	defer file.Close()
+
+	var sources []Source
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() {
+		line := scanner.Text()
+		if line == "" || strings.HasPrefix(line, "#") {
+			continue
+		}
+
+		parts := strings.Split(line, ":")
+		if len(parts) < 2 {
+			continue
+		}
+
+		name := strings.TrimSpace(parts[0])
+		url := strings.TrimSpace(strings.Join(parts[1:], ":"))
+		sources = append(sources, Source{Name: name, URL: url})
+	}
+
+	return sources, scanner.Err()
+}
+
 func main() {
 	flag.Parse()
 	log.SetLevel(log.SILENT)
 
-	if *configPathsConfig == "" {
-		log.Fatalln("please specify the configuration file")
+	if *configPathsConfig == "" && *sourcesFile == "" {
+		log.Fatalln("%s", "please specify either the configuration file (-c) or sources file (-s)")
 	}
 
-	speedTester := speedtester.New(&speedtester.Config{
-		ConfigPaths:  *configPathsConfig,
-		FilterRegex:  *filterRegexConfig,
-		ServerURL:    *serverURL,
-		DownloadSize: *downloadSize,
-		UploadSize:   *uploadSize,
-		Timeout:      *timeout,
-		Concurrent:   *concurrent,
-	})
+	var sources []Source
+	var err error
 
-	allProxies, err := speedTester.LoadProxies()
-	if err != nil {
-		log.Fatalln("load proxies failed: %v", err)
+	if *sourcesFile != "" {
+		sources, err = parseSources(*sourcesFile)
+		if err != nil {
+			log.Fatalln("%s: %v", "failed to parse sources file", err)
+		}
 	}
 
-	bar := progressbar.Default(int64(len(allProxies)), "测试中...")
-	results := make([]*speedtester.Result, 0)
-	speedTester.TestProxies(allProxies, func(result *speedtester.Result) {
-		bar.Add(1)
-		bar.Describe(result.ProxyName)
-		results = append(results, result)
+	var allResults []*speedtester.Result
+
+	if len(sources) > 0 {
+		// 批量模式
+		for _, source := range sources {
+			fmt.Printf("\n测试源: %s\n", source.Name)
+
+			speedTester := speedtester.New(&speedtester.Config{
+				ConfigPaths:  source.URL,
+				FilterRegex:  *filterRegexConfig,
+				ServerURL:    *serverURL,
+				DownloadSize: *downloadSize,
+				UploadSize:   *uploadSize,
+				Timeout:      *timeout,
+				Concurrent:   *concurrent,
+				NamePrefix:   source.Name + "-",
+			})
+
+			proxies, err := speedTester.LoadProxies()
+			if err != nil {
+				log.Warnln("load proxies failed for %s: %v", source.Name, err)
+				continue
+			}
+
+			bar := progressbar.Default(int64(len(proxies)), "测试中...")
+			results := make([]*speedtester.Result, 0)
+			speedTester.TestProxies(proxies, func(result *speedtester.Result) {
+				bar.Add(1)
+				bar.Describe(result.ProxyName)
+				results = append(results, result)
+			})
+
+			allResults = append(allResults, results...)
+		}
+	} else {
+		// 单文件模式
+		speedTester := speedtester.New(&speedtester.Config{
+			ConfigPaths:  *configPathsConfig,
+			FilterRegex:  *filterRegexConfig,
+			ServerURL:    *serverURL,
+			DownloadSize: *downloadSize,
+			UploadSize:   *uploadSize,
+			Timeout:      *timeout,
+			Concurrent:   *concurrent,
+		})
+
+		proxies, err := speedTester.LoadProxies()
+		if err != nil {
+			log.Fatalln("%s: %v", "load proxies failed", err)
+		}
+
+		bar := progressbar.Default(int64(len(proxies)), "测试中...")
+		results := make([]*speedtester.Result, 0)
+		speedTester.TestProxies(proxies, func(result *speedtester.Result) {
+			bar.Add(1)
+			bar.Describe(result.ProxyName)
+			results = append(results, result)
+		})
+
+		allResults = results
+	}
+
+	// 按下载速度排序
+	sort.Slice(allResults, func(i, j int) bool {
+		return allResults[i].DownloadSpeed > allResults[j].DownloadSpeed
 	})
 
-	sort.Slice(results, func(i, j int) bool {
-		return results[i].DownloadSpeed > results[j].DownloadSpeed
-	})
-
-	printResults(results)
+	printResults(allResults)
 
 	if *outputPath != "" {
-		err = saveConfig(results)
+		err = saveConfig(allResults)
 		if err != nil {
-			log.Fatalln("save config file failed: %v", err)
+			log.Fatalln("%s: %v", "save config file failed", err)
 		}
 		fmt.Printf("\nsave config file to: %s\n", *outputPath)
 	}

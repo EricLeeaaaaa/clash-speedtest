@@ -23,6 +23,8 @@ Usage of clash-speedtest:
         configuration file path, also support http(s) url
   -f string
         filter proxies by name, use regexp (default ".*")
+  -s string
+        sources file path containing multiple yaml sources (auto prefix node names)
   -server-url string
         server url for testing proxies (default "https://speed.cloudflare.com")
   -download-size int
@@ -55,10 +57,14 @@ Premium|广港|IEPL|03                        	2.62MB/s    	333.00ms
 Premium|广港|IEPL|04                        	1.46MB/s    	272.00ms
 Premium|广港|IEPL|05                        	3.87MB/s    	249.00ms
 
-# 3. 当然你也可以混合使用
+# 3. 使用逗号分隔同时测试多个配置
 > clash-speedtest -c "https://domain.com/api/v1/client/subscribe?token=secret&flag=meta,/home/.config/clash/config.yaml"
 
-# 4. 筛选出延迟低于 800ms 且下载速度大于 5MB/s 的节点，并输出到 filtered.yaml
+# 4. 使用sources.txt批量测试多个订阅源（会自动为每个来源的节点添加前缀）
+> clash-speedtest -s sources.txt
+# 例如abc订阅源中的HKG-01节点会变成abc-HKG-01，方便区分不同来源
+
+# 5. 筛选出延迟低于 800ms 且下载速度大于 5MB/s 的节点，并输出到 filtered.yaml
 > clash-speedtest -c "https://domain.com/api/v1/client/subscribe?token=secret&flag=meta" -output filtered.yaml -max-latency 800ms -min-speed 5
 # 筛选后的配置文件可以直接粘贴到 Clash/Mihomo 中使用，或是贴到 Github\Gist 上通过 Proxy Provider 引用。
 ```
