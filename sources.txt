@@ -1,14 +1,8 @@
 # 这是一个示例配置文件
 # 格式: 名称: 订阅地址
 # 名称会作为节点前缀，例如 adc-HKG-01
-ermaozi: https://raw.githubusercontent.com/ermaozi/get_subscribe/main/subscribe/clash.yml
-AMPN: https://raw.githubusercontent.com/chengaopan/AutoMergePublicNodes/master/list.yml
 NMW: https://raw.githubusercontent.com/peasoft/NoMoreWalls/master/list.meta.yml
-freenode: https://raw.githubusercontent.com/ripaojiedian/freenode/main/clash
-fly: https://raw.githubusercontent.com/ts-sf/fly/main/clash
-freeSub: https://raw.githubusercontent.com/Ruk1ng001/freeSub/main/clash.yaml
-passcro: https://raw.githubusercontent.com/zhangkaiitugithub/passcro/main/speednodes.yaml
-chromego: https://chromego-sub.netlify.app/sub/merged_proxies_new.yaml
-SSA: https://raw.githubusercontent.com/mahdibland/SSAggregator/master/sub/sub_merge_yaml.yml
+passcro: https://raw.githubusercontent.com/zhangkaiitugithub/passcro/main/meta.yaml
+# SSA: https://raw.githubusercontent.com/mahdibland/SSAggregator/master/sub/sub_merge_yaml.yml
 # 可以添加更多订阅源
 # xyz: https://example.com/clash.yaml

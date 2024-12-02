@@ -4,11 +4,11 @@ import (
 	"context"
 	"fmt"
 	"io"
-	"math"
 	"net"
 	"net/http"
 	"os"
 	"regexp"
+	"sort"
 	"strconv"
 	"strings"
 	"sync"
@@ -21,52 +21,57 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
+// 基本配置结构
 type Config struct {
 	ConfigPaths  string
 	FilterRegex  string
 	ServerURL    string
 	DownloadSize int
-	UploadSize   int
 	Timeout      time.Duration
 	Concurrent   int
-	NamePrefix   string // 新增: 节点名称前缀
+	NamePrefix   string
 }
 
+// 速度测试器
 type SpeedTester struct {
-	config *Config
+	config      *Config
+	clientCache sync.Map
 }
 
+// 创建新的测试器实例
 func New(config *Config) *SpeedTester {
+	// 设置默认值
 	if config.Concurrent <= 0 {
 		config.Concurrent = 1
 	}
 	if config.DownloadSize <= 0 {
-		config.DownloadSize = 100 * 1024 * 1024
+		config.DownloadSize = 10 * 1024 * 1024
 	}
-	if config.UploadSize <= 0 {
-		config.UploadSize = 10 * 1024 * 1024
-	}
-	return &SpeedTester{
-		config: config,
-	}
+	return &SpeedTester{config: config}
 }
 
+// 代理封装
 type CProxy struct {
 	constant.Proxy
 	Config map[string]any
 }
 
+// 配置文件结构
 type RawConfig struct {
 	Providers map[string]map[string]any `yaml:"proxy-providers"`
 	Proxies   []map[string]any          `yaml:"proxies"`
 }
 
+// 加载代理列表
 func (st *SpeedTester) LoadProxies() (map[string]*CProxy, error) {
 	allProxies := make(map[string]*CProxy)
 
+	// 遍历所有配置路径
 	for _, configPath := range strings.Split(st.config.ConfigPaths, ",") {
 		var body []byte
 		var err error
+
+		// 读取配置内容
 		if strings.HasPrefix(configPath, "http") {
 			var resp *http.Response
 			resp, err = http.Get(configPath)
@@ -83,17 +88,16 @@ func (st *SpeedTester) LoadProxies() (map[string]*CProxy, error) {
 			continue
 		}
 
-		rawCfg := &RawConfig{
-			Proxies: []map[string]any{},
-		}
+		// 解析配置
+		rawCfg := &RawConfig{Proxies: []map[string]any{}}
 		if err := yaml.Unmarshal(body, rawCfg); err != nil {
 			return nil, err
 		}
-		proxies := make(map[string]*CProxy)
-		proxiesConfig := rawCfg.Proxies
-		providersConfig := rawCfg.Providers
 
-		for i, config := range proxiesConfig {
+		proxies := make(map[string]*CProxy)
+
+		// 处理直接配置的代理
+		for i, config := range rawCfg.Proxies {
 			proxy, err := adapter.ParseProxy(config)
 			if err != nil {
 				return nil, fmt.Errorf("proxy %d: %w", i, err)
@@ -102,17 +106,11 @@ func (st *SpeedTester) LoadProxies() (map[string]*CProxy, error) {
 			proxyName := proxy.Name()
 			if st.config.NamePrefix != "" {
 				proxyName = st.config.NamePrefix + proxyName
-				config["name"] = proxyName // 更新配置中的节点名称
+				config["name"] = proxyName
 			}
 
 			if _, exist := proxies[proxyName]; exist {
 				return nil, fmt.Errorf("proxy %s is the duplicate name", proxyName)
-			}
-
-			// 使用更新后的配置重新解析代理
-			proxy, err = adapter.ParseProxy(config)
-			if err != nil {
-				return nil, fmt.Errorf("proxy %s: %w", proxyName, err)
 			}
 
 			proxies[proxyName] = &CProxy{
@@ -121,17 +119,19 @@ func (st *SpeedTester) LoadProxies() (map[string]*CProxy, error) {
 			}
 		}
 
-		for name, config := range providersConfig {
+		// 处理provider中的代理
+		for name, config := range rawCfg.Providers {
 			if name == provider.ReservedName {
-				return nil, fmt.Errorf("can not defined a provider called `%s`", provider.ReservedName)
+				continue
 			}
 			pd, err := provider.ParseProxyProvider(name, config)
 			if err != nil {
-				return nil, fmt.Errorf("parse proxy provider %s error: %w", name, err)
+				continue
 			}
 			if err := pd.Initial(); err != nil {
-				return nil, fmt.Errorf("initial proxy provider %s error: %w", pd.Name(), err)
+				continue
 			}
+
 			for _, proxy := range pd.Proxies() {
 				proxyName := proxy.Name()
 				if st.config.NamePrefix != "" {
@@ -144,91 +144,45 @@ func (st *SpeedTester) LoadProxies() (map[string]*CProxy, error) {
 			}
 		}
 
+		// 筛选支持的代理类型
 		for k, p := range proxies {
 			switch p.Type() {
 			case constant.Shadowsocks, constant.ShadowsocksR, constant.Snell, constant.Socks5, constant.Http,
 				constant.Vmess, constant.Vless, constant.Trojan, constant.Hysteria, constant.Hysteria2,
 				constant.WireGuard, constant.Tuic, constant.Ssh:
-			default:
-				continue
-			}
-			if _, ok := allProxies[k]; !ok {
-				allProxies[k] = p
+				if _, ok := allProxies[k]; !ok {
+					allProxies[k] = p
+				}
 			}
 		}
 	}
 
+	// 应用过滤器
 	filterRegexp := regexp.MustCompile(st.config.FilterRegex)
 	filteredProxies := make(map[string]*CProxy)
-	for name := range allProxies {
+	for name, proxy := range allProxies {
 		if filterRegexp.MatchString(name) {
-			filteredProxies[name] = allProxies[name]
+			filteredProxies[name] = proxy
 		}
 	}
+
 	return filteredProxies, nil
 }
 
-func (st *SpeedTester) TestProxies(proxies map[string]*CProxy, fn func(result *Result)) {
-	// 创建工作池和结果通道
-	workers := make(chan struct{}, 10) // 限制最大并发数为10
-	var wg sync.WaitGroup
-
-	for name, proxy := range proxies {
-		wg.Add(1)
-		workers <- struct{}{} // 获取工作槽
-		go func(name string, proxy *CProxy) {
-			defer wg.Done()
-			defer func() { <-workers }() // 释放工作槽
-			fn(st.testProxy(name, proxy))
-		}(name, proxy)
-	}
-
-	wg.Wait()
-}
-
+// 测试结果结构
 type Result struct {
-	ProxyName     string         `json:"proxy_name"`
-	ProxyType     string         `json:"proxy_type"`
-	ProxyConfig   map[string]any `json:"proxy_config"`
-	Latency       time.Duration  `json:"latency"`
-	Jitter        time.Duration  `json:"jitter"`
-	PacketLoss    float64        `json:"packet_loss"`
-	DownloadSize  float64        `json:"download_size"`
-	DownloadTime  time.Duration  `json:"download_time"`
-	DownloadSpeed float64        `json:"download_speed"`
-	UploadSize    float64        `json:"upload_size"`
-	UploadTime    time.Duration  `json:"upload_time"`
-	UploadSpeed   float64        `json:"upload_speed"`
+	ProxyName     string
+	ProxyType     string
+	ProxyConfig   map[string]any
+	Latency       time.Duration
+	DownloadSize  float64
+	DownloadTime  time.Duration
+	DownloadSpeed float64
 }
 
-func (r *Result) FormatDownloadSpeed() string {
-	return formatSpeed(r.DownloadSpeed)
-}
-
-func (r *Result) FormatLatency() string {
-	if r.Latency == 0 {
-		return "N/A"
-	}
-	return fmt.Sprintf("%dms", r.Latency.Milliseconds())
-}
-
-func (r *Result) FormatJitter() string {
-	if r.Jitter == 0 {
-		return "N/A"
-	}
-	return fmt.Sprintf("%dms", r.Jitter.Milliseconds())
-}
-
-func (r *Result) FormatPacketLoss() string {
-	return fmt.Sprintf("%.1f%%", r.PacketLoss)
-}
-
-func (r *Result) FormatUploadSpeed() string {
-	return formatSpeed(r.UploadSpeed)
-}
-
+// 格式化速度
 func formatSpeed(bytesPerSecond float64) string {
-	units := []string{"B/s", "KB/s", "MB/s", "GB/s", "TB/s"}
+	units := []string{"B/s", "KB/s", "MB/s", "GB/s"}
 	unit := 0
 	speed := bytesPerSecond
 	for speed >= 1024 && unit < len(units)-1 {
@@ -238,6 +192,37 @@ func formatSpeed(bytesPerSecond float64) string {
 	return fmt.Sprintf("%.2f%s", speed, units[unit])
 }
 
+// 格式化方法
+func (r *Result) FormatDownloadSpeed() string { return formatSpeed(r.DownloadSpeed) }
+func (r *Result) FormatLatency() string {
+	if r.Latency == 0 {
+		return "N/A"
+	}
+	return fmt.Sprintf("%dms", r.Latency.Milliseconds())
+}
+
+// 测试所有代理
+func (st *SpeedTester) TestProxies(proxies map[string]*CProxy, fn func(result *Result)) {
+	workers := make(chan struct{}, st.config.Concurrent)
+	var wg sync.WaitGroup
+
+	for name, proxy := range proxies {
+		wg.Add(1)
+		workers <- struct{}{}
+		go func(name string, proxy *CProxy) {
+			defer wg.Done()
+			defer func() { <-workers }()
+
+			// 为每个节点添加冷却时间
+			time.Sleep(time.Second)
+			fn(st.testProxy(name, proxy))
+		}(name, proxy)
+	}
+
+	wg.Wait()
+}
+
+// 测试单个代理
 func (st *SpeedTester) testProxy(name string, proxy *CProxy) *Result {
 	result := &Result{
 		ProxyName:   name,
@@ -245,189 +230,76 @@ func (st *SpeedTester) testProxy(name string, proxy *CProxy) *Result {
 		ProxyConfig: proxy.Config,
 	}
 
-	// 使用context控制超时
+	client := st.getClient(proxy.Proxy)
+
+	// 1. 延迟测试
+	var latencies []time.Duration
+
+	// 进行3次延迟测试
+	for i := 0; i < 3; i++ {
+		ctx, cancel := context.WithTimeout(context.Background(), st.config.Timeout)
+		req, _ := http.NewRequestWithContext(ctx, "GET", fmt.Sprintf("%s/__down?bytes=0", st.config.ServerURL), nil)
+		start := time.Now()
+		resp, err := client.Do(req)
+		cancel()
+
+		if err == nil && resp.StatusCode == http.StatusOK {
+			resp.Body.Close()
+			latencies = append(latencies, time.Since(start))
+		}
+
+		// 测试间隔
+		time.Sleep(300 * time.Millisecond)
+	}
+
+	// 计算延迟结果
+	if len(latencies) > 0 {
+		sort.Slice(latencies, func(i, j int) bool {
+			return latencies[i] < latencies[j]
+		})
+		// 取中位数作为最终延迟
+		result.Latency = latencies[len(latencies)/2]
+	}
+
+	// 预热连接
 	ctx, cancel := context.WithTimeout(context.Background(), st.config.Timeout)
+	req, _ := http.NewRequestWithContext(ctx, "GET", fmt.Sprintf("%s/__down?bytes=%d", st.config.ServerURL, 1024*512), nil)
+	resp, err := client.Do(req)
+	if err == nil {
+		io.Copy(io.Discard, resp.Body)
+		resp.Body.Close()
+	}
+	cancel()
+	time.Sleep(time.Second)
+
+	// 2. 下载测试
+	ctx, cancel = context.WithTimeout(context.Background(), st.config.Timeout)
 	defer cancel()
 
-	// 并发执行延迟测试
-	latencyChan := make(chan *latencyResult, 1)
-	go func() {
-		latencyChan <- st.testLatency(proxy.Proxy)
-	}()
+	start := time.Now()
+	req, _ = http.NewRequestWithContext(ctx, "GET", fmt.Sprintf("%s/__down?bytes=%d", st.config.ServerURL, st.config.DownloadSize), nil)
+	resp, err = client.Do(req)
+	if err == nil && resp.StatusCode == http.StatusOK {
+		downloadBytes, _ := io.Copy(io.Discard, resp.Body)
+		resp.Body.Close()
+		downloadTime := time.Since(start)
 
-	select {
-	case latencyResult := <-latencyChan:
-		result.Latency = latencyResult.avgLatency
-		result.Jitter = latencyResult.jitter
-		result.PacketLoss = latencyResult.packetLoss
-	case <-ctx.Done():
-		result.PacketLoss = 100
-		return result
-	}
-
-	if result.PacketLoss == 100 {
-		return result
-	}
-
-	var wg sync.WaitGroup
-	downloadResults := make(chan *downloadResult, st.config.Concurrent)
-	uploadResults := make(chan *downloadResult, st.config.Concurrent)
-
-	downloadChunkSize := st.config.DownloadSize / st.config.Concurrent
-	uploadChunkSize := st.config.UploadSize / st.config.Concurrent
-
-	// 并发执行下载和上传测试
-	for i := 0; i < st.config.Concurrent; i++ {
-		wg.Add(2)
-		go func() {
-			defer wg.Done()
-			downloadResults <- st.testDownload(proxy.Proxy, downloadChunkSize)
-		}()
-		go func() {
-			defer wg.Done()
-			uploadResults <- st.testUpload(proxy.Proxy, uploadChunkSize)
-		}()
-	}
-
-	go func() {
-		wg.Wait()
-		close(downloadResults)
-		close(uploadResults)
-	}()
-
-	var totalDownloadBytes, totalUploadBytes int64
-	var totalDownloadTime, totalUploadTime time.Duration
-	var downloadCount, uploadCount int
-
-	for dr := range downloadResults {
-		if dr != nil {
-			totalDownloadBytes += dr.bytes
-			totalDownloadTime += dr.duration
-			downloadCount++
-		}
-	}
-
-	for ur := range uploadResults {
-		if ur != nil {
-			totalUploadBytes += ur.bytes
-			totalUploadTime += ur.duration
-			uploadCount++
-		}
-	}
-
-	if downloadCount > 0 {
-		result.DownloadSize = float64(totalDownloadBytes)
-		result.DownloadTime = totalDownloadTime / time.Duration(downloadCount)
-		result.DownloadSpeed = float64(totalDownloadBytes) / result.DownloadTime.Seconds()
-	}
-	if uploadCount > 0 {
-		result.UploadSize = float64(totalUploadBytes)
-		result.UploadTime = totalUploadTime / time.Duration(uploadCount)
-		result.UploadSpeed = float64(totalUploadBytes) / result.UploadTime.Seconds()
+		result.DownloadSize = float64(downloadBytes)
+		result.DownloadTime = downloadTime
+		result.DownloadSpeed = float64(downloadBytes) / downloadTime.Seconds()
 	}
 
 	return result
 }
 
-type latencyResult struct {
-	avgLatency time.Duration
-	jitter     time.Duration
-	packetLoss float64
-}
-
-func (st *SpeedTester) testLatency(proxy constant.Proxy) *latencyResult {
-	client := st.createClient(proxy)
-	latencies := make([]time.Duration, 0, 6)
-	failedPings := 0
-
-	var wg sync.WaitGroup
-	var mu sync.Mutex
-
-	// 并发执行ping测试
-	for i := 0; i < 6; i++ {
-		wg.Add(1)
-		go func() {
-			defer wg.Done()
-			start := time.Now()
-			resp, err := client.Get(fmt.Sprintf("%s/__down?bytes=0", st.config.ServerURL))
-			if err != nil {
-				mu.Lock()
-				failedPings++
-				mu.Unlock()
-				return
-			}
-			resp.Body.Close()
-			if resp.StatusCode == http.StatusOK {
-				mu.Lock()
-				latencies = append(latencies, time.Since(start))
-				mu.Unlock()
-			} else {
-				mu.Lock()
-				failedPings++
-				mu.Unlock()
-			}
-		}()
-		time.Sleep(50 * time.Millisecond) // 稍微降低并发强度
+// 获取HTTP客户端
+func (st *SpeedTester) getClient(proxy constant.Proxy) *http.Client {
+	key := proxy.Name()
+	if client, ok := st.clientCache.Load(key); ok {
+		return client.(*http.Client)
 	}
 
-	wg.Wait()
-	return calculateLatencyStats(latencies, failedPings)
-}
-
-type downloadResult struct {
-	bytes    int64
-	duration time.Duration
-}
-
-func (st *SpeedTester) testDownload(proxy constant.Proxy, size int) *downloadResult {
-	client := st.createClient(proxy)
-	start := time.Now()
-
-	resp, err := client.Get(fmt.Sprintf("%s/__down?bytes=%d", st.config.ServerURL, size))
-	if err != nil {
-		return nil
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode != http.StatusOK {
-		return nil
-	}
-
-	downloadBytes, _ := io.Copy(io.Discard, resp.Body)
-
-	return &downloadResult{
-		bytes:    downloadBytes,
-		duration: time.Since(start),
-	}
-}
-
-func (st *SpeedTester) testUpload(proxy constant.Proxy, size int) *downloadResult {
-	client := st.createClient(proxy)
-	reader := NewZeroReader(size)
-
-	start := time.Now()
-	resp, err := client.Post(
-		fmt.Sprintf("%s/__up", st.config.ServerURL),
-		"application/octet-stream",
-		reader,
-	)
-	if err != nil {
-		return nil
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode != http.StatusOK {
-		return nil
-	}
-
-	return &downloadResult{
-		bytes:    reader.WrittenBytes(),
-		duration: time.Since(start),
-	}
-}
-
-func (st *SpeedTester) createClient(proxy constant.Proxy) *http.Client {
-	return &http.Client{
+	client := &http.Client{
 		Timeout: st.config.Timeout,
 		Transport: &http.Transport{
 			DialContext: func(ctx context.Context, network, addr string) (net.Conn, error) {
@@ -444,32 +316,13 @@ func (st *SpeedTester) createClient(proxy constant.Proxy) *http.Client {
 					DstPort: u16Port,
 				})
 			},
+			MaxIdleConns:        100,
+			MaxIdleConnsPerHost: 10,
+			IdleConnTimeout:     90 * time.Second,
+			DisableKeepAlives:   false,
 		},
 	}
-}
 
-func calculateLatencyStats(latencies []time.Duration, failedPings int) *latencyResult {
-	result := &latencyResult{
-		packetLoss: float64(failedPings) / 6.0 * 100,
-	}
-
-	if len(latencies) == 0 {
-		return result
-	}
-
-	var total time.Duration
-	for _, l := range latencies {
-		total += l
-	}
-	result.avgLatency = total / time.Duration(len(latencies))
-
-	var variance float64
-	for _, l := range latencies {
-		diff := float64(l - result.avgLatency)
-		variance += diff * diff
-	}
-	variance /= float64(len(latencies))
-	result.jitter = time.Duration(math.Sqrt(variance))
-
-	return result
+	st.clientCache.Store(key, client)
+	return client
 }

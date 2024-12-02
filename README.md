@@ -28,9 +28,7 @@ Usage of clash-speedtest:
   -server-url string
         server url for testing proxies (default "https://speed.cloudflare.com")
   -download-size int
-        download size for testing proxies (default 50MB)
-  -upload-size int
-        upload size for testing proxies (default 20MB)
+        download size for testing proxies (default 10MB)
   -timeout duration
         timeout for testing proxies (default 5s)
   -concurrent int
@@ -50,7 +48,7 @@ Usage of clash-speedtest:
 
 # 2. 测试香港节点，使用正则表达式过滤，使用本地文件
 > clash-speedtest -c ~/.config/clash/config.yaml -f 'HK|港'
-节点                                        	带宽          	延迟
+节点                                        	下载速度    	延迟
 Premium|广港|IEPL|01                        	484.80KB/s  	815.00ms
 Premium|广港|IEPL|02                        	N/A         	N/A
 Premium|广港|IEPL|03                        	2.62MB/s    	333.00ms
@@ -71,15 +69,16 @@ Premium|广港|IEPL|05                        	3.87MB/s    	249.00ms
 
 ## 测速原理
 
-通过 HTTP GET 请求下载指定大小的文件，默认使用 https://speed.cloudflare.com (50MB) 进行测试，计算下载时间得到下载速度。
+通过 HTTP GET 请求下载指定大小的文件，默认使用 https://speed.cloudflare.com (10MB) 进行测试，计算下载时间得到下载速度。
+
+测试过程:
+1. 进行3次延迟测试，取中位数作为最终延迟结果
+2. 预热连接以确保测速准确性
+3. 进行主下载测试获取带宽数据
 
 测试结果：
-1. 带宽 是指下载指定大小文件的速度，即一般理解中的下载速度。当这个数值越高时表明节点的出口带宽越大。
+1. 下载速度 是指下载指定大小文件的速度。当这个数值越高时表明节点的出口带宽越大。
 2. 延迟 是指 HTTP GET 请求拿到第一个字节的的响应时间，即一般理解中的 TTFB。当这个数值越低时表明你本地到达节点的延迟越低，可能意味着中转节点有 BGP 部署、出海线路是 IEPL、IPLC 等。
-
-请注意带宽跟延迟是两个独立的指标，两者并不关联：
-1. 可能带宽很高但是延迟也很高，这种情况下你下载速度很快但是打开网页的时候却很慢，可能是是中转节点没有 BGP 加速，但出海线路带宽很充足。
-2. 可能带宽很低但是延迟也很低，这种情况下你打开网页的时候很快但是下载速度很慢，可能是中转节点有 BGP 加速，但出海线路的 IEPL、IPLC 带宽很小。
 
 Cloudflare 是全球知名的 CDN 服务商，其提供的测速服务器到海外绝大部分的节点速度都很快，一般情况下都没有必要自建测速服务器。
 

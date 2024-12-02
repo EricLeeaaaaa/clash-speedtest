@@ -20,10 +20,9 @@ var (
 	configPathsConfig = flag.String("c", "", "config file path, also support http(s) url")
 	filterRegexConfig = flag.String("f", ".+", "filter proxies by name, use regexp")
 	serverURL         = flag.String("server-url", "https://speed.cloudflare.com", "server url")
-	downloadSize      = flag.Int("download-size", 50*1024*1024, "download size for testing proxies")
-	uploadSize        = flag.Int("upload-size", 20*1024*1024, "upload size for testing proxies")
+	downloadSize      = flag.Int("download-size", 10*1024*1024, "download size for testing proxies")
 	timeout           = flag.Duration("timeout", time.Second*5, "timeout for testing proxies")
-	concurrent        = flag.Int("concurrent", 4, "download concurrent size")
+	concurrent        = flag.Int("concurrent", 4, "concurrent testing size")
 	outputPath        = flag.String("output", "", "output config file path")
 	maxLatency        = flag.Duration("max-latency", 800*time.Millisecond, "filter latency greater than this value")
 	minSpeed          = flag.Float64("min-speed", 5, "filter speed less than this value(unit: MB/s)")
@@ -100,7 +99,6 @@ func main() {
 				FilterRegex:  *filterRegexConfig,
 				ServerURL:    *serverURL,
 				DownloadSize: *downloadSize,
-				UploadSize:   *uploadSize,
 				Timeout:      *timeout,
 				Concurrent:   *concurrent,
 				NamePrefix:   source.Name + "-",
@@ -129,7 +127,6 @@ func main() {
 			FilterRegex:  *filterRegexConfig,
 			ServerURL:    *serverURL,
 			DownloadSize: *downloadSize,
-			UploadSize:   *uploadSize,
 			Timeout:      *timeout,
 			Concurrent:   *concurrent,
 		})
@@ -174,10 +171,7 @@ func printResults(results []*speedtester.Result) {
 		"节点名称",
 		"类型",
 		"延迟",
-		"抖动",
-		"丢包率",
 		"下载速度",
-		"上传速度",
 	})
 
 	table.SetAutoWrapText(false)
@@ -209,29 +203,6 @@ func printResults(results []*speedtester.Result) {
 			latencyStr = colorRed + latencyStr + colorReset
 		}
 
-		jitterStr := result.FormatJitter()
-		if result.Jitter > 0 {
-			if result.Jitter < 800*time.Millisecond {
-				jitterStr = colorGreen + jitterStr + colorReset
-			} else if result.Jitter < 1500*time.Millisecond {
-				jitterStr = colorYellow + jitterStr + colorReset
-			} else {
-				jitterStr = colorRed + jitterStr + colorReset
-			}
-		} else {
-			jitterStr = colorRed + jitterStr + colorReset
-		}
-
-		// 丢包率颜色
-		packetLossStr := result.FormatPacketLoss()
-		if result.PacketLoss < 10 {
-			packetLossStr = colorGreen + packetLossStr + colorReset
-		} else if result.PacketLoss < 20 {
-			packetLossStr = colorYellow + packetLossStr + colorReset
-		} else {
-			packetLossStr = colorRed + packetLossStr + colorReset
-		}
-
 		// 下载速度颜色 (以MB/s为单位判断)
 		downloadSpeed := result.DownloadSpeed / (1024 * 1024)
 		downloadSpeedStr := result.FormatDownloadSpeed()
@@ -243,26 +214,12 @@ func printResults(results []*speedtester.Result) {
 			downloadSpeedStr = colorRed + downloadSpeedStr + colorReset
 		}
 
-		// 上传速度颜色
-		uploadSpeed := result.UploadSpeed / (1024 * 1024)
-		uploadSpeedStr := result.FormatUploadSpeed()
-		if uploadSpeed >= 5 {
-			uploadSpeedStr = colorGreen + uploadSpeedStr + colorReset
-		} else if uploadSpeed >= 2 {
-			uploadSpeedStr = colorYellow + uploadSpeedStr + colorReset
-		} else {
-			uploadSpeedStr = colorRed + uploadSpeedStr + colorReset
-		}
-
 		row := []string{
 			idStr,
 			result.ProxyName,
 			result.ProxyType,
 			latencyStr,
-			jitterStr,
-			packetLossStr,
 			downloadSpeedStr,
-			uploadSpeedStr,
 		}
 
 		table.Append(row)
