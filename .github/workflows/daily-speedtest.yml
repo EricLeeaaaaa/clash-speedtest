@@ -2,45 +2,36 @@ name: Daily Speed Test
 
 on:
   schedule:
-    - cron: '0 0 * * *'  # 每天UTC 0点运行
-  workflow_dispatch:      # 允许手动触发
+    - cron: '0 0 * * *'  # 每天 UTC 0:00 运行
+  workflow_dispatch:      # 支持手动触发
 
 jobs:
   speedtest:
+    name: Run Speed Test
     runs-on: ubuntu-latest
     
     steps:
-    - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-    - name: Set up Go
-      uses: actions/setup-go@v4
-      with:
-        go-version: '1.21'
-        
-    - name: Install dependencies
-      run: go mod download
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: '>=1.21.0'
 
-    - name: Build
-      run: |
-        CGO_ENABLED=0 go build -o clash-speedtest .
-        chmod +x ./clash-speedtest
+      - name: Build clash-speedtest
+        run: go build -v -o clash-speedtest
 
-    - name: Run speed test
-      run: |
-        ./clash-speedtest -s sources.txt -timeout 2s --min-speed 10 --max-latency 1000ms --output result.yml
+      - name: Run speed test
+        id: speedtest
+        run: ./clash-speedtest -c https://raw.githubusercontent.com/mahdibland/V2RayAggregator/master/sub/sub_merge_yaml.yml -output result.yml -min-speed 5
 
-    - name: Upload test results
-      uses: actions/upload-artifact@v3
-      with:
-        name: speedtest-results
-        path: |
-          result.yml
-
-    - name: Update Results
-      if: success()
-      run: |
-        git config --local user.email "action@github.com"
-        git config --local user.name "GitHub Action"
-        git add result.yml
-        git commit -m "update: 更新测速结果 $(date '+%Y-%m-%d')" || echo "No changes"
-        git push || echo "No changes to push"
+      - name: Commit and push result
+        if: steps.speedtest.outcome == 'success'
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git pull origin main
+          git add result.yml
+          git commit -m "update: 更新测速结果 $(date '+%Y-%m-%d')" || exit 0
+          git push
