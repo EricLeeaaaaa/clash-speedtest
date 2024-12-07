@@ -1,26 +1,64 @@
 proxy-providers: {}
 proxies:
-    - cipher: chacha20-ietf-poly1305
-      name: "\U0001F1FA\U0001F1F8US-205.134.180.150-0276"
-      password: 5cp9Z3iWnJZ2
+    - cipher: aes-128-gcm
+      name: "\U0001F1FA\U0001F1F8US-156.146.38.168-0348"
+      password: shadowsocks
       port: 443
-      server: 205.134.180.150
+      server: 156.146.38.168
       type: ss
     - cipher: aes-128-gcm
-      name: "\U0001F1FA\U0001F1F8US-37.19.198.160-0351"
+      name: "\U0001F1FA\U0001F1F8US-156.146.38.169-0349"
+      password: shadowsocks
+      port: 443
+      server: 156.146.38.169
+      type: ss
+    - cipher: aes-128-cfb
+      name: "\U0001F1FA\U0001F1F8US-184.170.241.194-0352"
+      password: shadowsocks
+      port: 443
+      server: 184.170.241.194
+      type: ss
+    - cipher: aes-128-gcm
+      name: "\U0001F1FA\U0001F1F8US-212.102.47.130-0362"
+      password: shadowsocks
+      port: 443
+      server: 212.102.47.130
+      type: ss
+    - cipher: aes-128-gcm
+      name: "\U0001F1FA\U0001F1F8US-212.102.47.131-0361"
+      password: shadowsocks
+      port: 443
+      server: 212.102.47.131
+      type: ss
+    - cipher: aes-128-gcm
+      name: "\U0001F1FA\U0001F1F8US-37.19.198.160-0341"
       password: shadowsocks
       port: 443
       server: 37.19.198.160
       type: ss
     - cipher: aes-128-gcm
-      name: "\U0001F1FA\U0001F1F8US-37.19.198.243-0356"
+      name: "\U0001F1FA\U0001F1F8US-37.19.198.243-0342"
       password: shadowsocks
       port: 443
       server: 37.19.198.243
       type: ss
     - alterId: 0
       cipher: auto
-      name: "\U0001F1FA\U0001F1F8US-69.164.211.69-7693"
+      name: "\U0001F3C1RELAY-162.159.136.98-0878"
+      network: ws
+      port: 80
+      server: 162.159.136.98
+      skip-cert-verify: false
+      tls: false
+      type: vmess
+      uuid: 5820093a-bb7d-4e15-8575-1a529f2d8282
+      ws-opts:
+        headers:
+            Host: rn2.hostmjj.com
+        path: /
+    - alterId: 0
+      cipher: auto
+      name: "\U0001F1FA\U0001F1F8US-69.164.211.69-7735"
       network: ws
       port: 443
       server: denc36.xtooltech.cfd
@@ -32,110 +70,9 @@ proxies:
         headers:
             Host: adenc36v.xtooltech.cfd
         path: /linkws
-    - cipher: chacha20-ietf-poly1305
-      name: "\U0001F1FA\U0001F1F8US-205.134.180.139-0348"
-      password: lWaGPVFjmnag
-      port: 443
-      server: 205.134.180.139
-      type: ss
-    - cipher: chacha20-ietf-poly1305
-      name: "\U0001F1FA\U0001F1F8US-64.74.163.130-0355"
-      password: f8f7aCzcPKbsF8p3
-      port: 990
-      server: 64.74.163.130
-      type: ss
-    - cipher: chacha20-ietf-poly1305
-      name: "\U0001F1FA\U0001F1F8US-205.134.180.147-0347"
-      password: 9Bvkw5aupNy8
-      port: 443
-      server: 205.134.180.147
-      type: ss
-    - cipher: chacha20-ietf-poly1305
-      name: "\U0001F1FA\U0001F1F8US-205.134.180.151-0345"
-      password: 5cp9Z3iWnJZ2
-      port: 443
-      server: 205.134.180.151
-      type: ss
-    - cipher: chacha20-ietf-poly1305
-      name: "\U0001F1FA\U0001F1F8US-205.134.180.145-9068"
-      password: hgLCgfLRgB6d
-      port: 443
-      server: 205.134.180.145
-      type: ss
-    - cipher: aes-128-gcm
-      name: "\U0001F1FA\U0001F1F8US-156.146.38.168-0353"
-      password: shadowsocks
-      port: 443
-      server: 156.146.38.168
-      type: ss
-    - cipher: aes-128-gcm
-      name: "\U0001F1FA\U0001F1F8US-156.146.38.169-0352"
-      password: shadowsocks
-      port: 443
-      server: 156.146.38.169
-      type: ss
-    - cipher: chacha20-ietf-poly1305
-      name: "\U0001F1FA\U0001F1F8US-38.107.226.146-0402"
-      password: H5S0hvcxRi#YLmgU
-      port: 1230
-      server: 38.107.226.146
-      type: ss
-    - cipher: aes-128-cfb
-      name: "\U0001F1FA\U0001F1F8US-184.170.241.194-0359"
-      password: shadowsocks
-      port: 443
-      server: 184.170.241.194
-      type: ss
-    - cipher: aes-128-gcm
-      name: "\U0001F1FA\U0001F1F8US-212.102.47.131-0360"
-      password: shadowsocks
-      port: 443
-      server: 212.102.47.131
-      type: ss
-    - cipher: aes-128-gcm
-      name: "\U0001F1FA\U0001F1F8US-212.102.47.130-0364"
-      password: shadowsocks
-      port: 443
-      server: 212.102.47.130
-      type: ss
     - alterId: 0
       cipher: auto
-      name: "\U0001F3C1RELAY-173.245.58.37-7943"
-      network: ws
-      port: 443
-      server: 173.245.58.37
-      servername: 7wih-darkness-f0af.jivegoh116.workers.dev
-      skip-cert-verify: false
-      tls: true
-      type: vmess
-      uuid: 1052f24e-7b09-45eb-b0c5-d858eb124192
-      ws-opts:
-        headers:
-            Host: 7wih-darkness-f0af.jivegoh116.workers.dev
-        path: /glweidf.cfd/linkws
-    - alterId: 0
-      cipher: auto
-      name: "\U0001F3C1RELAY-104.16.67.38-0780"
-      network: ws
-      port: 2096
-      server: 104.16.67.38
-      skip-cert-verify: false
-      tls: true
-      type: vmess
-      uuid: 1052f24e-7b09-45eb-b0c5-d858eb124192
-      ws-opts:
-        headers:
-            Host: worker-flat-hat-00f2.ravapim426.workers.dev
-        path: /glweidf.cfd/linkws
-    - cipher: aes-256-gcm
-      name: "\U0001F1FA\U0001F1F8US-38.75.136.49-0399"
-      password: faBAoD54k87UJG7
-      port: 2375
-      server: 38.75.136.49
-      type: ss
-    - alterId: 0
-      cipher: auto
-      name: "\U0001F3C1RELAY-162.159.136.106-0958"
+      name: "\U0001F3C1RELAY-162.159.136.106-1512"
       network: ws
       port: 80
       server: 162.159.136.106
@@ -147,63 +84,289 @@ proxies:
         headers:
             Host: rn2.hostmjj.com
         path: /
-    - cipher: aes-128-gcm
-      name: "\U0001F1EC\U0001F1E7GB-212.102.53.196-0369"
-      password: shadowsocks
+    - cipher: chacha20-ietf-poly1305
+      name: "\U0001F1FA\U0001F1F8US-205.134.180.150-0277"
+      password: 5cp9Z3iWnJZ2
       port: 443
-      server: 212.102.53.196
+      server: 205.134.180.150
+      type: ss
+    - cipher: chacha20-ietf-poly1305
+      name: "\U0001F1FA\U0001F1F8US-64.74.163.130-0353"
+      password: f8f7aCzcPKbsF8p3
+      port: 990
+      server: 64.74.163.130
       type: ss
     - cipher: aes-128-gcm
-      name: "\U0001F1EC\U0001F1E7GB-212.102.53.193-0374"
+      name: "\U0001F1EF\U0001F1F5JP-149.22.87.240-0394"
       password: shadowsocks
       port: 443
-      server: 212.102.53.193
+      server: 149.22.87.240
       type: ss
-    - cipher: aes-128-gcm
-      name: "\U0001F1EC\U0001F1E7GB-212.102.53.81-0373"
-      password: shadowsocks
+    - cipher: aes-256-cfb
+      name: "\U0001F1EF\U0001F1F5JP-54.65.202.4-1355"
+      password: amazonskr05
       port: 443
-      server: 212.102.53.81
+      server: 54.65.202.4
+      type: ss
+    - cipher: aes-256-gcm
+      name: "\U0001F1FA\U0001F1F8US-38.75.136.49-0383"
+      password: faBAoD54k87UJG7
+      port: 2375
+      server: 38.75.136.49
       type: ss
     - cipher: aes-128-gcm
-      name: "\U0001F1EC\U0001F1E7GB-212.102.53.197-0375"
-      password: shadowsocks
-      port: 443
-      server: 212.102.53.197
-      type: ss
-    - cipher: aes-128-gcm
-      name: "\U0001F1EC\U0001F1E7GB-212.102.53.80-0367"
+      name: "\U0001F1EC\U0001F1E7GB-212.102.53.80-0368"
       password: shadowsocks
       port: 443
       server: 212.102.53.80
       type: ss
     - cipher: aes-128-gcm
-      name: "\U0001F1EC\U0001F1E7GB-212.102.53.195-0366"
+      name: "\U0001F1EC\U0001F1E7GB-212.102.53.193-0371"
       password: shadowsocks
       port: 443
-      server: 212.102.53.195
+      server: 212.102.53.193
       type: ss
     - cipher: aes-128-gcm
-      name: "\U0001F1EC\U0001F1E7GB-212.102.53.198-0368"
+      name: "\U0001F1EC\U0001F1E7GB-212.102.53.81-0375"
       password: shadowsocks
       port: 443
-      server: 212.102.53.198
+      server: 212.102.53.81
       type: ss
     - cipher: aes-128-gcm
-      name: "\U0001F1EC\U0001F1E7GB-212.102.53.78-0372"
+      name: "\U0001F1EC\U0001F1E7GB-212.102.53.197-0369"
       password: shadowsocks
       port: 443
-      server: 212.102.53.78
+      server: 212.102.53.197
       type: ss
     - cipher: aes-128-cfb
-      name: "\U0001F1F3\U0001F1F1NL-109.201.152.181-0378"
+      name: "\U0001F1F3\U0001F1F1NL-109.201.152.181-0379"
       password: shadowsocks
       port: 443
       server: 109.201.152.181
       type: ss
     - cipher: aes-128-gcm
-      name: "\U0001F1EC\U0001F1E7GB-212.102.53.194-0157"
+      name: "\U0001F1EC\U0001F1E7GB-212.102.53.78-0373"
+      password: shadowsocks
+      port: 443
+      server: 212.102.53.78
+      type: ss
+    - cipher: aes-128-gcm
+      name: "\U0001F1EC\U0001F1E7GB-212.102.53.194-0158"
       password: shadowsocks
       port: 443
       server: 212.102.53.194
       type: ss
+    - cipher: aes-128-gcm
+      name: "\U0001F1EC\U0001F1E7GB-212.102.53.195-0363"
+      password: shadowsocks
+      port: 443
+      server: 212.102.53.195
+      type: ss
+    - cipher: aes-128-gcm
+      name: "\U0001F1EC\U0001F1E7GB-212.102.53.196-0370"
+      password: shadowsocks
+      port: 443
+      server: 212.102.53.196
+      type: ss
+    - cipher: chacha20-ietf-poly1305
+      name: "\U0001F1F3\U0001F1F4NO-51.13.114.93-0386"
+      password: A8WnUKGDfhssvapELnQRSn
+      port: 62004
+      server: 51.13.114.93
+      type: ss
+    - cipher: aes-256-cfb
+      name: "\U0001F1EB\U0001F1F7FR-51.15.27.48-0372"
+      password: f8f7aCzcPKbsF8p3
+      port: 989
+      server: 51.15.27.48
+      type: ss
+    - cipher: aes-256-cfb
+      name: "\U0001F1EB\U0001F1F7FR-195.154.169.198-0374"
+      password: f8f7aCzcPKbsF8p3
+      port: 989
+      server: 195.154.169.198
+      type: ss
+    - cipher: aes-128-gcm
+      name: "\U0001F1E8\U0001F1EDCH-156.146.62.164-0384"
+      password: shadowsocks
+      port: 443
+      server: 156.146.62.164
+      type: ss
+    - alterId: 0
+      cipher: auto
+      name: "\U0001F1EB\U0001F1F7FR-193.160.130.201-7828"
+      network: ws
+      port: 443
+      server: irhms03.dongfeng.cfd
+      servername: hms03.dongfeng.cfd
+      skip-cert-verify: false
+      tls: true
+      type: vmess
+      uuid: fa5b55cd-cafc-4de0-a4c8-722e02a9f58e
+      ws-opts:
+        headers:
+            Host: hms03.dongfeng.cfd
+        path: /linkws
+    - cipher: chacha20-ietf-poly1305
+      name: "\U0001F1F3\U0001F1F4NO-51.13.114.206-0385"
+      password: Bk6CwTEYasiCd9iqVOvOpZ
+      port: 19940
+      server: 51.13.114.206
+      type: ss
+    - alterId: 0
+      cipher: auto
+      name: "\U0001F3C1RELAY-147.78.140.231-7779"
+      network: ws
+      port: 443
+      server: 147.78.140.231
+      servername: llow-disk-4b7b.bigapax481.workers.dev
+      skip-cert-verify: false
+      tls: true
+      type: vmess
+      uuid: f584de15-2034-4170-a723-f48c2bae5e0f
+      ws-opts:
+        headers:
+            Host: llow-disk-4b7b.bigapax481.workers.dev
+        path: /afrhms16v.bestxray.buzz/linkws
+    - cipher: aes-256-cfb
+      name: "\U0001F1F8\U0001F1EASE-121.127.46.147-0388"
+      password: f8f7aCzcPKbsF8p3
+      port: 989
+      server: 121.127.46.147
+      type: ss
+    - alterId: 0
+      cipher: auto
+      name: "\U0001F1EB\U0001F1F7FR-193.160.130.245-7737"
+      network: ws
+      port: 443
+      server: beyonddsz.cfd
+      skip-cert-verify: false
+      tls: true
+      type: vmess
+      uuid: 9b456c2a-f2c1-45e1-87a9-b7628b04bb24
+      ws-opts:
+        headers:
+            Host: beyonddsz.cfd
+        path: /linkws
+    - cipher: chacha20-ietf-poly1305
+      name: "\U0001F1FA\U0001F1F8US-205.134.180.151-0356"
+      password: 5cp9Z3iWnJZ2
+      port: 443
+      server: 205.134.180.151
+      type: ss
+    - cipher: chacha20-ietf-poly1305
+      name: "\U0001F1F5\U0001F1F1PL-45.144.48.63-0391"
+      password: d3837224ed465f00
+      port: 57456
+      server: 45.144.48.63
+      type: ss
+    - cipher: rc4-md5
+      name: "\U0001F1F8\U0001F1ECSG-68.183.227.45-0397"
+      password: 14fFPrbezE3HDZzsMOr6
+      port: 8080
+      server: 68.183.227.45
+      type: ss
+    - alterId: 0
+      cipher: auto
+      name: "\U0001F1E9\U0001F1EADE-130.61.156.132-0378"
+      network: ws
+      port: 443
+      server: frankfurt03.zgjok.com
+      skip-cert-verify: false
+      tls: true
+      type: vmess
+      uuid: 4f7c2243-a38a-4672-983b-f1378aee0a7f
+      ws-opts:
+        headers:
+            Host: frankfurt03.zgjok.com
+        path: /
+    - cipher: chacha20-ietf-poly1305
+      name: "\U0001F1F5\U0001F1F1PL-45.144.48.63-0390"
+      password: d3837224ed465f00
+      port: 57456
+      server: war.ssvpnapp.win
+      type: ss
+    - alterId: 0
+      cipher: auto
+      name: "\U0001F1EB\U0001F1F7FR-193.160.130.245-7724"
+      network: ws
+      port: 443
+      server: 193.160.130.245
+      skip-cert-verify: false
+      tls: true
+      type: vmess
+      uuid: 9b456c2a-f2c1-45e1-87a9-b7628b04bb24
+      ws-opts:
+        headers:
+            Host: beyonddsz.cfd
+        path: /linkws
+    - cipher: aes-256-cfb
+      name: "\U0001F1F7\U0001F1F4RO-194.14.217.115-0389"
+      password: f8f7aCzcPKbsF8p3
+      port: 989
+      server: 194.14.217.115
+      type: ss
+    - cipher: chacha20-ietf-poly1305
+      name: "\U0001F1FA\U0001F1F8US-205.134.180.147-0359"
+      password: 9Bvkw5aupNy8
+      port: 443
+      server: 205.134.180.147
+      type: ss
+    - cipher: rc4-md5
+      name: "\U0001F1E9\U0001F1EADE-193.108.119.230-0392"
+      password: 14fFPrbezE3HDZzsMOr6
+      port: 8080
+      server: 193.108.119.230
+      type: ss
+    - cipher: aes-128-gcm
+      name: "\U0001F1EC\U0001F1E7GB-212.102.53.198-0364"
+      password: shadowsocks
+      port: 443
+      server: 212.102.53.198
+      type: ss
+    - cipher: chacha20-ietf-poly1305
+      name: "\U0001F1FA\U0001F1F8US-38.107.226.146-0399"
+      password: H5S0hvcxRi#YLmgU
+      port: 1230
+      server: 38.107.226.146
+      type: ss
+    - cipher: chacha20-ietf-poly1305
+      name: "\U0001F1FA\U0001F1F8US-205.134.180.139-0358"
+      password: lWaGPVFjmnag
+      port: 443
+      server: 205.134.180.139
+      type: ss
+    - name: "\U0001F1EF\U0001F1F5JP-52.194.205.199-0677"
+      password: 0028109a-37ed-4ded-b858-e566388a904c
+      port: 20230
+      server: jp006.421421.xyz
+      skip-cert-verify: false
+      sni: 421421.xyz
+      type: trojan
+    - cipher: aes-256-cfb
+      name: "\U0001F1F7\U0001F1F8RS-194.71.126.31-0387"
+      password: f8f7aCzcPKbsF8p3
+      port: 989
+      server: 194.71.126.31
+      type: ss
+    - cipher: aes-128-gcm
+      name: "\U0001F1EC\U0001F1E7GB-141.98.101.178-0380"
+      password: shadowsocks
+      port: 443
+      server: 141.98.101.178
+      type: ss
+    - alterId: 0
+      cipher: auto
+      name: "\U0001F1EB\U0001F1F7FR-45.145.167.103-7698"
+      network: ws
+      port: 443
+      server: indiavideo.sbs
+      servername: indiavideo.sbs
+      skip-cert-verify: false
+      tls: true
+      type: vmess
+      uuid: 425c5e6e-30a0-4984-8a13-ee6f72053162
+      ws-opts:
+        headers:
+            Host: indiavideo.sbs
+        path: /linkws
