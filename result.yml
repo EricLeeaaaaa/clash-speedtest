@@ -1,331 +1,26 @@
 proxy-providers: {}
 proxies:
-    - cipher: aes-128-gcm
-      name: "SSA-\U0001F1FA\U0001F1F8US-212.102.47.130-0396"
-      password: shadowsocks
+    - cipher: chacha20-ietf-poly1305
+      name: "\U0001F1FA\U0001F1F8US-205.134.180.150-0276"
+      password: 5cp9Z3iWnJZ2
       port: 443
-      server: 212.102.47.130
+      server: 205.134.180.150
       type: ss
     - cipher: aes-128-gcm
-      name: "SSA-\U0001F1FA\U0001F1F8US-212.102.47.131-0393"
-      password: shadowsocks
-      port: 443
-      server: 212.102.47.131
-      type: ss
-    - cipher: aes-128-cfb
-      name: "SSA-\U0001F1FA\U0001F1F8US-184.170.241.194-0391"
-      password: shadowsocks
-      port: 443
-      server: 184.170.241.194
-      type: ss
-    - cipher: aes-256-cfb
-      name: "SSA-\U0001F1FA\U0001F1F8US-34.221.162.56-0397"
-      password: amazonskr05
-      port: 443
-      server: 34.221.162.56
-      type: ss
-    - cipher: aes-256-cfb
-      name: "SSA-\U0001F1FA\U0001F1F8US-52.43.67.42-0745"
-      password: amazonskr05
-      port: 443
-      server: 52.43.67.42
-      type: ss
-    - cipher: aes-256-cfb
-      name: "freeSub-❓_\U0001F1FA\U0001F1F8_\U0001F4BC_github.com/Ruk1ng001_3934633538396639"
-      obfs: plain
-      password: amazonskr05
-      port: 443
-      protocol: origin
-      server: 52.33.189.33
-      type: ssr
-    - cipher: aes-256-cfb
-      name: "SSA-\U0001F1FA\U0001F1F8US-52.12.67.119-0945"
-      password: amazonskr05
-      port: 443
-      server: 52.12.67.119
-      type: ss
-    - cipher: aes-256-cfb
-      name: "freeSub-\U0001F7E1_\U0001F1FA\U0001F1F8_\U0001F4BC_github.com/Ruk1ng001_3333633334623636"
-      password: amazonskr05
-      port: 443
-      server: 54.200.220.184
-      type: ss
-      udp: true
-    - alterId: 0
-      cipher: aes-128-gcm
-      name: fly-US11 55.5MB/s
-      password: shadowsocks
-      port: 443
-      server: 156.146.38.168
-      skip-cert-verify: true
-      tls: true
-      type: ss
-    - cipher: aes-256-cfb
-      name: "SSA-\U0001F1FA\U0001F1F8US-34.208.196.91-2865"
-      password: amazonskr05
-      port: 443
-      server: 34.208.196.91
-      type: ss
-    - cipher: aes-128-gcm
-      name: "SSA-\U0001F1FA\U0001F1F8US-156.146.38.168-0395"
-      password: shadowsocks
-      port: 443
-      server: 156.146.38.168
-      type: ss
-    - cipher: aes-256-cfb
-      name: "freeSub-\U0001F7E1_\U0001F1FA\U0001F1F8_\U0001F4BC_github.com/Ruk1ng001_64633836363836"
-      password: amazonskr05
-      port: 443
-      server: 35.94.117.219
-      type: ss
-    - cipher: aes-128-gcm
-      name: "SSA-\U0001F1FA\U0001F1F8US-156.146.38.169-0394"
-      password: shadowsocks
-      port: 443
-      server: 156.146.38.169
-      type: ss
-    - cipher: aes-256-cfb
-      name: "SSA-\U0001F1FA\U0001F1F8US-18.236.180.126-0408"
-      password: amazonskr05
-      port: 443
-      server: 18.236.180.126
-      type: ss
-    - cipher: aes-256-cfb
-      name: "freeSub-\U0001F7E1_\U0001F1FA\U0001F1F8_\U0001F4BC_github.com/Ruk1ng001_3336666434303663"
-      password: amazonskr05
-      port: 443
-      server: 54.214.136.183
-      type: ss
-      udp: true
-    - cipher: aes-256-cfb
-      name: "freeSub-❓_\U0001F1FA\U0001F1F8_\U0001F4BC_github.com/Ruk1ng001_62356637363939"
-      password: amazonskr05
-      port: 443
-      server: 52.33.189.33
-      type: ss
-      udp: true
-    - cipher: aes-256-cfb
-      name: "freeSub-❓_\U0001F1FA\U0001F1F8_\U0001F4BC_github.com/Ruk1ng001_3437383932383231"
-      password: amazonskr05
-      port: 443
-      server: 18.236.89.178
-      type: ss
-      udp: true
-    - cipher: aes-256-cfb
-      name: "freeSub-\U0001F7E1_\U0001F1FA\U0001F1F8_\U0001F4BC_github.com/Ruk1ng001_63326430666131"
-      password: amazonskr05
-      port: 443
-      server: 54.189.131.201
-      type: ss
-      udp: true
-    - cipher: aes-256-cfb
-      name: "freeSub-❓_\U0001F1FA\U0001F1F8_\U0001F4BC_github.com/Ruk1ng001_3963626433306565"
-      password: amazonskr05
-      port: 443
-      server: 52.12.67.119
-      type: ss
-      udp: true
-    - cipher: aes-256-cfb
-      name: NMW-0|-https://t.me/MrXbin-3
-      password: amazonskr05
-      port: 443
-      server: 34.208.196.91
-      type: ss
-    - cipher: aes-256-cfb
-      name: "freeSub-\U0001F7E1_\U0001F1FA\U0001F1F8_\U0001F4BC_github.com/Ruk1ng001_3133643562613735"
-      password: amazonskr05
-      port: 443
-      server: 34.215.84.62
-      type: ss
-      udp: true
-    - cipher: aes-256-cfb
-      name: "freeSub-\U0001F7E1_\U0001F1FA\U0001F1F8_\U0001F4BC_github.com/Ruk1ng001_6263396439613332"
-      password: amazonskr05
-      port: 443
-      server: 34.222.145.191
-      type: ss
-      udp: true
-    - cipher: aes-256-cfb
-      name: "SSA-\U0001F1FA\U0001F1F8US-18.236.89.178-0527"
-      password: amazonskr05
-      port: 443
-      server: 18.236.89.178
-      type: ss
-    - cipher: aes-256-cfb
-      name: "freeSub-\U0001F7E1_\U0001F1FA\U0001F1F8_\U0001F4BC_github.com/Ruk1ng001_3331633061373839"
-      password: amazonskr05
-      port: 443
-      server: 34.220.195.209
-      type: ss
-      udp: true
-    - cipher: aes-256-cfb
-      name: passcro-US_speednode_0127
-      password: amazonskr05
-      port: 443
-      server: 34.208.196.91
-      type: ss
-    - alterId: 0
-      cipher: auto
-      name: chromego-None_None_vmess_13
-      network: ws
-      port: 8443
-      server: 104.21.238.202
-      servername: http1.9290254.xyz
-      tls: true
-      type: vmess
-      udp: true
-      uuid: 9201ffaa-6ca3-4f57-8b1f-266a2f390e43
-      ws-opts:
-        early-data-header-name: Sec-WebSocket-Protocol
-        headers:
-            Host: http1.9290254.xyz
-        path: github.com/Alvin9999
-        v2ray-http-upgrade: true
-        v2ray-http-upgrade-fast-open: true
-    - alterId: 0
-      cipher: auto
-      name: NMW-5|d*********g.com_3
-      network: ws
-      port: 8443
-      server: 104.21.238.203
-      servername: http1.9290254.xyz
-      tls: true
-      type: vmess
-      udp: true
-      uuid: 9201ffaa-6ca3-4f57-8b1f-266a2f390e43
-      ws-opts:
-        early-data-header-name: Sec-WebSocket-Protocol
-        headers:
-            Host: http1.9290254.xyz
-        path: github.com/Alvin9999
-        v2ray-http-upgrade: true
-        v2ray-http-upgrade-fast-open: true
-    - alterId: 0
-      cipher: aes-128-gcm
-      name: fly-US3 20.7MB/s
-      password: shadowsocks
-      port: 443
-      server: 37.19.198.236
-      skip-cert-verify: true
-      tls: true
-      type: ss
-    - cipher: aes-128-gcm
-      name: "SSA-\U0001F1FA\U0001F1F8US-37.19.198.160-0405"
+      name: "\U0001F1FA\U0001F1F8US-37.19.198.160-0351"
       password: shadowsocks
       port: 443
       server: 37.19.198.160
       type: ss
+    - cipher: aes-128-gcm
+      name: "\U0001F1FA\U0001F1F8US-37.19.198.243-0356"
+      password: shadowsocks
+      port: 443
+      server: 37.19.198.243
+      type: ss
     - alterId: 0
       cipher: auto
-      name: chromego-None_None_vmess_12
-      network: ws
-      port: 8443
-      server: 104.21.238.201
-      servername: http1.9290254.xyz
-      tls: true
-      type: vmess
-      udp: true
-      uuid: 9201ffaa-6ca3-4f57-8b1f-266a2f390e43
-      ws-opts:
-        early-data-header-name: Sec-WebSocket-Protocol
-        headers:
-            Host: http1.9290254.xyz
-        path: github.com/Alvin9999
-        v2ray-http-upgrade: true
-        v2ray-http-upgrade-fast-open: true
-    - alterId: 0
-      cipher: auto
-      name: NMW-5|d*********g.com_0
-      network: ws
-      port: 8443
-      server: 104.21.238.200
-      servername: http1.9290254.xyz
-      tls: true
-      type: vmess
-      udp: true
-      uuid: 9201ffaa-6ca3-4f57-8b1f-266a2f390e43
-      ws-opts:
-        early-data-header-name: Sec-WebSocket-Protocol
-        headers:
-            Host: http1.9290254.xyz
-        path: github.com/Alvin9999
-        v2ray-http-upgrade: true
-        v2ray-http-upgrade-fast-open: true
-    - alterId: 0
-      cipher: auto
-      name: chromego-None_None_vmess_14
-      network: ws
-      port: 8443
-      server: 104.21.238.203
-      servername: http1.9290254.xyz
-      tls: true
-      type: vmess
-      udp: true
-      uuid: 9201ffaa-6ca3-4f57-8b1f-266a2f390e43
-      ws-opts:
-        early-data-header-name: Sec-WebSocket-Protocol
-        headers:
-            Host: http1.9290254.xyz
-        path: github.com/Alvin9999
-        v2ray-http-upgrade: true
-        v2ray-http-upgrade-fast-open: true
-    - alterId: 0
-      cipher: auto
-      name: chromego-None_None_vmess_11
-      network: ws
-      port: 8443
-      server: 104.21.238.200
-      servername: http1.9290254.xyz
-      tls: true
-      type: vmess
-      udp: true
-      uuid: 9201ffaa-6ca3-4f57-8b1f-266a2f390e43
-      ws-opts:
-        early-data-header-name: Sec-WebSocket-Protocol
-        headers:
-            Host: http1.9290254.xyz
-        path: github.com/Alvin9999
-        v2ray-http-upgrade: true
-        v2ray-http-upgrade-fast-open: true
-    - alterId: 0
-      cipher: auto
-      name: NMW-5|d*********g.com_1
-      network: ws
-      port: 8443
-      server: 104.21.238.201
-      servername: http1.9290254.xyz
-      tls: true
-      type: vmess
-      udp: true
-      uuid: 9201ffaa-6ca3-4f57-8b1f-266a2f390e43
-      ws-opts:
-        early-data-header-name: Sec-WebSocket-Protocol
-        headers:
-            Host: http1.9290254.xyz
-        path: github.com/Alvin9999
-        v2ray-http-upgrade: true
-        v2ray-http-upgrade-fast-open: true
-    - alterId: 0
-      cipher: auto
-      name: NMW-5|d*********g.com_2
-      network: ws
-      port: 8443
-      server: 104.21.238.202
-      servername: http1.9290254.xyz
-      tls: true
-      type: vmess
-      udp: true
-      uuid: 9201ffaa-6ca3-4f57-8b1f-266a2f390e43
-      ws-opts:
-        early-data-header-name: Sec-WebSocket-Protocol
-        headers:
-            Host: http1.9290254.xyz
-        path: github.com/Alvin9999
-        v2ray-http-upgrade: true
-        v2ray-http-upgrade-fast-open: true
-    - alterId: 0
-      cipher: auto
-      name: "SSA-\U0001F1E9\U0001F1EADE-172.236.192.193-8024"
+      name: "\U0001F1FA\U0001F1F8US-69.164.211.69-7693"
       network: ws
       port: 443
       server: denc36.xtooltech.cfd
@@ -337,30 +32,75 @@ proxies:
         headers:
             Host: adenc36v.xtooltech.cfd
         path: /linkws
-    - alterId: 0
-      cipher: chacha20-ietf-poly1305
-      name: "fly-\U0001F1E8\U0001F1E6CA加拿大"
-      password: f8f7aCzcPKbsF8p3
-      port: 990
-      server: 64.74.163.130
-      skip-cert-verify: true
-      tls: true
+    - cipher: chacha20-ietf-poly1305
+      name: "\U0001F1FA\U0001F1F8US-205.134.180.139-0348"
+      password: lWaGPVFjmnag
+      port: 443
+      server: 205.134.180.139
       type: ss
     - cipher: chacha20-ietf-poly1305
-      name: freeSub-github.com/Ruk1ng001_6538386264376436
+      name: "\U0001F1FA\U0001F1F8US-64.74.163.130-0355"
       password: f8f7aCzcPKbsF8p3
       port: 990
       server: 64.74.163.130
       type: ss
+    - cipher: chacha20-ietf-poly1305
+      name: "\U0001F1FA\U0001F1F8US-205.134.180.147-0347"
+      password: 9Bvkw5aupNy8
+      port: 443
+      server: 205.134.180.147
+      type: ss
+    - cipher: chacha20-ietf-poly1305
+      name: "\U0001F1FA\U0001F1F8US-205.134.180.151-0345"
+      password: 5cp9Z3iWnJZ2
+      port: 443
+      server: 205.134.180.151
+      type: ss
+    - cipher: chacha20-ietf-poly1305
+      name: "\U0001F1FA\U0001F1F8US-205.134.180.145-9068"
+      password: hgLCgfLRgB6d
+      port: 443
+      server: 205.134.180.145
+      type: ss
     - cipher: aes-128-gcm
-      name: "SSA-\U0001F1FA\U0001F1F8US-37.19.198.243-0404"
+      name: "\U0001F1FA\U0001F1F8US-156.146.38.168-0353"
       password: shadowsocks
       port: 443
-      server: 37.19.198.243
+      server: 156.146.38.168
+      type: ss
+    - cipher: aes-128-gcm
+      name: "\U0001F1FA\U0001F1F8US-156.146.38.169-0352"
+      password: shadowsocks
+      port: 443
+      server: 156.146.38.169
+      type: ss
+    - cipher: chacha20-ietf-poly1305
+      name: "\U0001F1FA\U0001F1F8US-38.107.226.146-0402"
+      password: H5S0hvcxRi#YLmgU
+      port: 1230
+      server: 38.107.226.146
+      type: ss
+    - cipher: aes-128-cfb
+      name: "\U0001F1FA\U0001F1F8US-184.170.241.194-0359"
+      password: shadowsocks
+      port: 443
+      server: 184.170.241.194
+      type: ss
+    - cipher: aes-128-gcm
+      name: "\U0001F1FA\U0001F1F8US-212.102.47.131-0360"
+      password: shadowsocks
+      port: 443
+      server: 212.102.47.131
+      type: ss
+    - cipher: aes-128-gcm
+      name: "\U0001F1FA\U0001F1F8US-212.102.47.130-0364"
+      password: shadowsocks
+      port: 443
+      server: 212.102.47.130
       type: ss
     - alterId: 0
       cipher: auto
-      name: "SSA-\U0001F3C1RELAY-173.245.58.37-8267"
+      name: "\U0001F3C1RELAY-173.245.58.37-7943"
       network: ws
       port: 443
       server: 173.245.58.37
@@ -373,314 +113,29 @@ proxies:
         headers:
             Host: 7wih-darkness-f0af.jivegoh116.workers.dev
         path: /glweidf.cfd/linkws
-    - cipher: aes-128-gcm
-      name: "SSA-\U0001F1EF\U0001F1F5JP-149.22.87.240-0406"
-      password: shadowsocks
-      port: 443
-      server: 149.22.87.240
-      type: ss
-    - cipher: aes-256-cfb
-      name: "freeSub-❓_\U0001F1EF\U0001F1F5_\U0001F4BC_github.com/Ruk1ng001_6232623662336564"
-      password: amazonskr05
-      port: 443
-      server: 13.231.232.11
-      type: ss
-      udp: true
-    - cipher: chacha20-ietf-poly1305
-      name: "SSA-\U0001F1FA\U0001F1F8US-205.134.180.147-0413"
-      password: 9Bvkw5aupNy8
-      port: 443
-      server: 205.134.180.147
-      type: ss
-    - cipher: aes-256-cfb
-      name: "freeSub-\U0001F7E1_\U0001F1EF\U0001F1F5_\U0001F4BC_github.com/Ruk1ng001_31303936383134"
-      password: amazonskr05
-      port: 443
-      server: 3.112.215.69
-      type: ss
-      udp: true
-    - cipher: aes-256-cfb
-      name: "freeSub-❓_\U0001F1EF\U0001F1F5_\U0001F4BC_github.com/Ruk1ng001_3434663663393236"
-      password: amazonskr05
-      port: 443
-      server: 43.206.238.246
-      type: ss
-      udp: true
     - alterId: 0
-      name: fly-US22 42.6MB/s
-      network: tcp
-      password: xjN4xcuPGg
-      port: 45601
-      server: 155.248.205.39
-      skip-cert-verify: true
-      sni: f.522226.xyz
+      cipher: auto
+      name: "\U0001F3C1RELAY-104.16.67.38-0780"
+      network: ws
+      port: 2096
+      server: 104.16.67.38
+      skip-cert-verify: false
       tls: true
-      type: trojan
-      udp: true
-    - cipher: aes-256-cfb
-      name: "freeSub-❓_\U0001F1F0\U0001F1F7_\U0001F4BC_github.com/Ruk1ng001_3834346462633733"
-      password: amazonskr05
-      port: 443
-      server: 43.203.249.198
-      type: ss
-    - cipher: aes-128-gcm
-      name: "SSA-\U0001F1EC\U0001F1E7GB-212.102.53.81-0420"
-      password: shadowsocks
-      port: 443
-      server: 212.102.53.81
-      type: ss
+      type: vmess
+      uuid: 1052f24e-7b09-45eb-b0c5-d858eb124192
+      ws-opts:
+        headers:
+            Host: worker-flat-hat-00f2.ravapim426.workers.dev
+        path: /glweidf.cfd/linkws
     - cipher: aes-256-gcm
-      name: "SSA-\U0001F1FA\U0001F1F8US-38.75.136.49-0410"
+      name: "\U0001F1FA\U0001F1F8US-38.75.136.49-0399"
       password: faBAoD54k87UJG7
       port: 2375
       server: 38.75.136.49
       type: ss
-    - cipher: aes-128-gcm
-      name: "SSA-\U0001F1EC\U0001F1E7GB-212.102.53.197-0428"
-      password: shadowsocks
-      port: 443
-      server: 212.102.53.197
-      type: ss
-    - cipher: aes-128-gcm
-      name: "SSA-\U0001F1EC\U0001F1E7GB-212.102.53.195-0427"
-      password: shadowsocks
-      port: 443
-      server: 212.102.53.195
-      type: ss
-    - cipher: aes-128-gcm
-      name: "SSA-\U0001F1EC\U0001F1E7GB-212.102.53.198-0417"
-      password: shadowsocks
-      port: 443
-      server: 212.102.53.198
-      type: ss
-    - cipher: aes-256-cfb
-      name: "freeSub-\U0001F7E1_\U0001F1EF\U0001F1F5_\U0001F4BC_github.com/Ruk1ng001_3137636365653332"
-      password: amazonskr05
-      port: 443
-      server: 54.248.142.136
-      type: ss
-      udp: true
-    - cipher: aes-128-gcm
-      name: "SSA-\U0001F1EC\U0001F1E7GB-212.102.53.78-0423"
-      password: shadowsocks
-      port: 443
-      server: 212.102.53.78
-      type: ss
-    - cipher: aes-128-gcm
-      name: "SSA-\U0001F1EC\U0001F1E7GB-212.102.53.196-0425"
-      password: shadowsocks
-      port: 443
-      server: 212.102.53.196
-      type: ss
-    - cipher: aes-128-gcm
-      name: "SSA-\U0001F1EC\U0001F1E7GB-212.102.53.193-0430"
-      password: shadowsocks
-      port: 443
-      server: 212.102.53.193
-      type: ss
-    - cipher: aes-128-gcm
-      name: "SSA-\U0001F1EC\U0001F1E7GB-212.102.53.194-0207"
-      password: shadowsocks
-      port: 443
-      server: 212.102.53.194
-      type: ss
-    - cipher: aes-256-cfb
-      name: "freeSub-❓_\U0001F1EF\U0001F1F5_\U0001F4BC_github.com/Ruk1ng001_3230303832653337"
-      password: amazonskr05
-      port: 443
-      server: 57.180.42.246
-      type: ss
-      udp: true
-    - cipher: aes-256-cfb
-      name: "freeSub-❓_\U0001F1FA\U0001F1F8_\U0001F4BC_github.com/Ruk1ng001_3639383134386336"
-      password: amazonskr05
-      port: 443
-      server: 35.88.126.102
-      type: ss
-      udp: true
-    - alterId: 0
-      cipher: aes-256-gcm
-      name: fly-US4 29.9MB/s
-      password: faBAoD54k87UJG7
-      port: 2375
-      server: 38.75.136.49
-      skip-cert-verify: true
-      tls: true
-      type: ss
-    - cipher: chacha20-ietf-poly1305
-      name: "SSA-\U0001F1FA\U0001F1F8US-205.134.180.139-0429"
-      password: lWaGPVFjmnag
-      port: 443
-      server: 205.134.180.139
-      type: ss
-    - cipher: aes-128-gcm
-      name: "SSA-\U0001F1EC\U0001F1E7GB-212.102.53.80-0426"
-      password: shadowsocks
-      port: 443
-      server: 212.102.53.80
-      type: ss
-    - cipher: chacha20-ietf-poly1305
-      name: "SSA-\U0001F1EC\U0001F1E7GB-13.43.244.157-0433"
-      password: W74XFALLLuw6m5IA
-      port: 443
-      server: series-a1.samanehha.co
-      type: ss
-    - cipher: aes-256-cfb
-      name: "freeSub-\U0001F7E1_\U0001F1F0\U0001F1F7_\U0001F4BC_github.com/Ruk1ng001_6162653839623638"
-      password: amazonskr05
-      port: 443
-      server: 13.124.203.141
-      type: ss
-      udp: true
-    - cipher: chacha20-ietf-poly1305
-      name: "SSA-\U0001F1FA\U0001F1F8US-205.134.180.151-0465"
-      password: 5cp9Z3iWnJZ2
-      port: 443
-      server: 205.134.180.151
-      type: ss
-    - cipher: aes-128-cfb
-      name: "SSA-\U0001F1F3\U0001F1F1NL-109.201.152.181-0454"
-      password: shadowsocks
-      port: 443
-      server: 109.201.152.181
-      type: ss
-    - cipher: aes-128-gcm
-      name: passcro-NL_speednode_0087
-      password: shadowsocks
-      port: 443
-      server: 149.34.244.82
-      type: ss
-    - cipher: aes-128-gcm
-      name: "SSA-\U0001F1F3\U0001F1F1NL-149.34.244.82-0944"
-      password: shadowsocks
-      port: 443
-      server: 149.34.244.82
-      type: ss
-    - cipher: chacha20-ietf-poly1305
-      name: "SSA-\U0001F1F1\U0001F1F9LT-45.87.175.192-0332"
-      password: 4a2rfixophdjffa8KVA4Aa
-      port: 8080
-      server: beesyar.org
-      type: ss
-    - cipher: chacha20-ietf-poly1305
-      name: "SSA-\U0001F1F1\U0001F1F9LT-45.87.175.154-0325"
-      password: 4a2rfixophdjffa8KVA4Aa
-      port: 8080
-      server: 45.87.175.154
-      type: ss
-    - cipher: aes-256-cfb
-      name: "SSA-\U0001F1EF\U0001F1F5JP-3.112.222.179-0411"
-      obfs: tls1.2_ticket_auth
-      obfs-param: ""
-      password: eAokbaDN6
-      port: 8081
-      protocol: origin
-      protocol-param: ""
-      server: jp-am48-6.eqnode.net
-      type: ssr
     - alterId: 0
       cipher: auto
-      name: "SSA-\U0001F3C1RELAY-104.19.48.236-0317"
-      network: ws
-      port: 80
-      server: 104.19.48.236
-      skip-cert-verify: false
-      tls: false
-      type: vmess
-      uuid: e6543319-0574-42ac-b778-1c4325d626f5
-      ws-opts:
-        headers:
-            Host: chunchuan.kejixiaoqi666.store
-        path: /
-    - alterId: 0
-      cipher: auto
-      name: "SSA-\U0001F3C1RELAY-162.159.136.98-1029"
-      network: ws
-      port: 80
-      server: 162.159.136.98
-      skip-cert-verify: false
-      tls: false
-      type: vmess
-      uuid: 5820093a-bb7d-4e15-8575-1a529f2d8282
-      ws-opts:
-        headers:
-            Host: rn2.hostmjj.com
-        path: /
-    - cipher: aes-256-cfb
-      name: "SSA-\U0001F1EB\U0001F1F7FR-51.15.27.48-0459"
-      password: f8f7aCzcPKbsF8p3
-      port: 989
-      server: 51.15.27.48
-      type: ss
-    - cipher: aes-128-gcm
-      name: "SSA-\U0001F1E8\U0001F1EDCH-156.146.62.164-0440"
-      password: shadowsocks
-      port: 443
-      server: 156.146.62.164
-      type: ss
-    - alterId: 0
-      cipher: chacha20-ietf-poly1305
-      name: fly-未知86 84.2KB/s
-      password: p0XqZ4Oiw2xZjPmVxzyg6PgL8vSajJ43Bb1ukJNnUT0kAkFOrqvWPxNl2xLSE0mw
-      port: 42658
-      server: 5.182.38.211
-      skip-cert-verify: true
-      tls: true
-      type: ss
-    - cipher: aes-256-cfb
-      name: "SSA-\U0001F1F8\U0001F1EASE-121.127.46.147-0522"
-      password: f8f7aCzcPKbsF8p3
-      port: 989
-      server: 121.127.46.147
-      type: ss
-    - client-fingerprint: firefox
-      flow: xtls-rprx-vision
-      name: freeSub-github.com/Ruk1ng001_6139323962633466
-      network: tcp
-      port: 443
-      server: 3bd9.55dca.e048.f62-fef1f.yfjcs.com
-      servername: yfhk1.xn--4gq62f52gppi29k.com
-      tls: true
-      type: vless
-      uuid: e5dd8411-09b2-43f0-90a8-d45f2de9f3a0
-    - alterId: 0
-      cipher: auto
-      name: "SSA-\U0001F3C1RELAY-104.16.155.10-0316"
-      network: ws
-      port: 80
-      server: 104.16.155.10
-      skip-cert-verify: false
-      tls: false
-      type: vmess
-      uuid: e6543319-0574-42ac-b778-1c4325d626f5
-      ws-opts:
-        headers:
-            Host: chunchuan.kejixiaoqi666.store
-        path: /
-    - cipher: chacha20-ietf-poly1305
-      name: "SSA-\U0001F1EC\U0001F1E7GB-109.120.186.9-0451"
-      password: s#W0tqg%@N
-      port: 23022
-      server: 109.120.186.9
-      type: ss
-    - cipher: aes-256-cfb
-      name: "SSA-\U0001F1EB\U0001F1F7FR-195.154.169.198-0464"
-      password: f8f7aCzcPKbsF8p3
-      port: 989
-      server: 195.154.169.198
-      type: ss
-    - alterId: 0
-      cipher: chacha20-ietf-poly1305
-      name: fly-未知88
-      password: f8f7aCzcPKbsF8p3
-      port: 990
-      server: 103.167.234.98
-      skip-cert-verify: true
-      tls: true
-      type: ss
-    - alterId: 0
-      cipher: auto
-      name: "SSA-\U0001F3C1RELAY-162.159.136.106-1035"
+      name: "\U0001F3C1RELAY-162.159.136.106-0958"
       network: ws
       port: 80
       server: 162.159.136.106
@@ -692,27 +147,63 @@ proxies:
         headers:
             Host: rn2.hostmjj.com
         path: /
-    - cipher: aes-256-cfb
-      name: "SSA-\U0001F1F5\U0001F1F1PL-217.30.10.70-9316"
-      password: KBGjZYcy4SyRShmA
-      port: 9044
-      server: 217.30.10.70
-      type: ss
     - cipher: aes-128-gcm
-      name: "SSA-\U0001F1EC\U0001F1E7GB-141.98.101.178-0438"
+      name: "\U0001F1EC\U0001F1E7GB-212.102.53.196-0369"
       password: shadowsocks
       port: 443
-      server: 141.98.101.178
+      server: 212.102.53.196
       type: ss
-    - cipher: chacha20-ietf-poly1305
-      name: "SSA-\U0001F1F3\U0001F1F1NL-176.124.199.255-0478"
-      password: Zgg@X0m515
-      port: 30252
-      server: 176.124.199.255
-      type: ss
-    - cipher: aes-256-cfb
-      name: "SSA-\U0001F1F8\U0001F1ECSG-18.143.178.37-0449"
-      password: amazonskr05
+    - cipher: aes-128-gcm
+      name: "\U0001F1EC\U0001F1E7GB-212.102.53.193-0374"
+      password: shadowsocks
       port: 443
-      server: 18.143.178.37
+      server: 212.102.53.193
+      type: ss
+    - cipher: aes-128-gcm
+      name: "\U0001F1EC\U0001F1E7GB-212.102.53.81-0373"
+      password: shadowsocks
+      port: 443
+      server: 212.102.53.81
+      type: ss
+    - cipher: aes-128-gcm
+      name: "\U0001F1EC\U0001F1E7GB-212.102.53.197-0375"
+      password: shadowsocks
+      port: 443
+      server: 212.102.53.197
+      type: ss
+    - cipher: aes-128-gcm
+      name: "\U0001F1EC\U0001F1E7GB-212.102.53.80-0367"
+      password: shadowsocks
+      port: 443
+      server: 212.102.53.80
+      type: ss
+    - cipher: aes-128-gcm
+      name: "\U0001F1EC\U0001F1E7GB-212.102.53.195-0366"
+      password: shadowsocks
+      port: 443
+      server: 212.102.53.195
+      type: ss
+    - cipher: aes-128-gcm
+      name: "\U0001F1EC\U0001F1E7GB-212.102.53.198-0368"
+      password: shadowsocks
+      port: 443
+      server: 212.102.53.198
+      type: ss
+    - cipher: aes-128-gcm
+      name: "\U0001F1EC\U0001F1E7GB-212.102.53.78-0372"
+      password: shadowsocks
+      port: 443
+      server: 212.102.53.78
+      type: ss
+    - cipher: aes-128-cfb
+      name: "\U0001F1F3\U0001F1F1NL-109.201.152.181-0378"
+      password: shadowsocks
+      port: 443
+      server: 109.201.152.181
+      type: ss
+    - cipher: aes-128-gcm
+      name: "\U0001F1EC\U0001F1E7GB-212.102.53.194-0157"
+      password: shadowsocks
+      port: 443
+      server: 212.102.53.194
       type: ss
