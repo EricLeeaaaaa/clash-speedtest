@@ -1,118 +1,142 @@
-# HTTP 端口
-# port: 7890
+#######################
+# 基础代理端口配置
+#######################
+# port: 7890 # HTTP(S) 代理端口
+# socks-port: 7891 # SOCKS5 代理端口
+mixed-port: 7897 # HTTP(S) 和 SOCKS5 代理混合端口
+# redir-port: 7892 # 透明代理端口,用于 Linux 和 MacOS
+# tproxy-port: 7893 # Linux 透明代理端口(TProxy TCP 和 TProxy UDP)
 
-# SOCKS5 端口
-# socks-port: 7891
+#######################
+# 基础功能配置
+#######################
+# 局域网设置
+allow-lan: true # 允许局域网设备连接
+bind-address: "*" # 监听地址,仅在允许局域网连接时生效,'*'表示所有地址
 
-# HTTP(S) and SOCKS5 server on the same port
-mixed-port: 7890
+# 认证设置
+# authentication: # HTTP/SOCKS5 代理认证
+#   - "username:password"
+# skip-auth-prefixes: # 跳过认证的 IP 段
+#   - 127.0.0.1/8
+#   - ::1/128
 
-# Linux 及 macOS 的 redir 端口
-# redir-port: 7892
+# 局域网访问控制
+# lan-allowed-ips: # 允许访问的IP段,仅在allow-lan为true时生效
+#   - 0.0.0.0/0
+#   - ::/0
+# lan-disallowed-ips: # 禁止访问的IP段,优先级高于允许名单
+#   - 192.168.0.3/32
 
-allow-lan: false
+# 进程匹配模式
+# always: 强制匹配所有进程
+# strict: 默认值,由 mihomo 自动判断是否开启
+# off: 不匹配进程,路由器等设备建议使用此模式
+find-process-mode: strict
 
-# 仅适用于设置 allow-lan 为 true 时
-# "*": 绑定所有 IP 地址
-# 192.168.122.11: 绑定单个 IPv4 地址
-# "[aaaa::a8aa:ff:fe09:57d8]": 绑定单个 IPv6 地址
-# bind-address: "*"
+# 运行模式
+mode: rule
 
-# Rule / Global / Direct (默认为 Rule 模式)
-mode: Rule
+#######################
+# GEO数据配置
+#######################
+# GEO数据下载源
+geox-url:
+  geoip: "https://fastly.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@release/geoip.dat"
+  geosite: "https://fastly.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@release/geosite.dat"
+  mmdb: "https://fastly.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@release/geoip.metadb"
 
-# 设置输出日志的等级 (默认为 info)
-# info / warning / error / debug / silent
-log-level: info
+geo-auto-update: false # 是否自动更新GEO数据
+geo-update-interval: 24 # 自动更新间隔(小时)
 
-# RESTful API for clash
-external-controller: 127.0.0.1:9090
+# GeoSite 匹配器实现方式
+# succinct: 默认值,与rule-set相同
+# mph: 来自V2Ray,在Xray中称为hybrid
+# geosite-matcher: succinct
 
-# 兼容性配置
-external-controller-tls: false
+#######################
+# 系统设置
+#######################
+log-level: warning # 日志级别: silent/error/warning/info/debug
+ipv6: true # IPv6支持开关,关闭时会阻断所有IPv6连接及DNS AAAA记录解析
 
-# Secret for RESTful API (Optional)
-# secret: ""
-
-# 实验性功能
-experimental:
-  ignore-resolve-fail: true
-  # interface-name: en0
-  
-  cache-algorithm: lru  # 使用 LRU 缓存算法
-  cache-size: 1024  # 缓存大小
-
-# DNS 服务器配置
+#######################
+# DNS 配置
+#######################
 dns:
-  enable: true
-  listen: 0.0.0.0:63521
-  ipv6: true
-
-  # 默认域名解析服务器
-  default-nameserver:
-    - 1.2.4.8
-    - 8.8.8.8
-    - 223.5.5.5
-    - 114.114.114.114
-    - 119.29.29.29
-
-  # 增强 DNS 解析模式
-  enhanced-mode: redir-host
-  fake-ip-range: 198.18.0.1/16
-
-  prefer-h3: true  # 优先使用 HTTP/3 协议
+  enable: true # DNS服务开关
+  listen: 0.0.0.0:53 # DNS监听地址
+  ipv6: true # IPv6 DNS解析开关
+  prefer-h3: true # 优先使用HTTP/3进行DOH查询
+  cache-algorithm: arc # DNS缓存算法
   
-  # 防 DNS 污染配置
+  # 用于解析nameserver的默认DNS服务器
+  default-nameserver:
+    - 119.29.29.29 # 腾讯DNS
+    - 223.5.5.5 # 阿里DNS
+    - 114.114.114.114 # 114DNS
+    - system # 使用系统DNS配置
+
+  enhanced-mode: fake-ip # DNS模式: fake-ip / redir-host
+  fake-ip-range: 198.18.0.1/16 # Fake-IP地址池范围
+  
+  # Fake-IP 过滤器
   fake-ip-filter:
     - "*.lan"
-    - "*.local"
-    - "*.example"
     - "localhost.ptlogin2.qq.com"
-    - "dns.msftncsi.com"
-    - "www.msftncsi.com"
-    - "www.msftconnecttest.com"
-
-  # DNS 解析服务器
+    - "rule-set:fakeip-filter"
+    - "geosite:fakeip-filter"
+  fake-ip-filter-mode: blacklist # 过滤模式: blacklist/whitelist
+  
+  # 主要DNS服务器
   nameserver:
-    - https://dns.alidns.com/dns-query
-    - https://rubyfish.cn/dns-query
-    - https://doh.opendns.com/dns-query
-    - https://doh.dns.sb/dns-query
-    - tls://dot.sb
-    - tls://dns.pub
-
-  # 备用 DNS 服务器
+    - https://dns.alidns.com/dns-query # 阿里 DOH
+    - https://doh.pub/dns-query # 腾讯 DOH
+    - https://120.53.53.53/dns-query # DNSPod DOH
+    - tls://223.5.5.5:853 # 阿里 DOT
+    - tls://dot.pub:853 # 腾讯 DOT
+  
+  # 国外DNS服务器
   fallback:
     - https://dns.google/dns-query
-    - tls://1dot1dot1dot1.cloudflare-dns.com
-    - tls://1.0.0.1
-    - tls://1.1.1.1
-
-  # DNS 结果过滤
+    - https://cloudflare-dns.com/dns-query
+    - tls://8.8.8.8:853
+    - tls://1.1.1.1:853
+  
+  # Fallback匹配条件
   fallback-filter:
-    geoip: false
-    ipcidr:
-      - 0.0.0.0/8
-      - 10.0.0.0/8
-      - 100.64.0.0/10
-      - 127.0.0.0/8
-      - 169.254.0.0/16
-      - 172.16.0.0/12
-      - 192.0.0.0/24
-      - 192.0.2.0/24
-      - 192.88.99.0/24
-      - 192.168.0.0/16
-      - 198.18.0.0/15
-      - 198.51.100.0/24
-      - 203.0.113.0/24
-      - 224.0.0.0/4
+    geoip: true # 启用GeoIP判断
+    geoip-code: CN # 如果IP是中国的,不使用fallback
+    geosite: # 强制使用fallback的域名
+      - gfw
+      - greatfire
+    ipcidr: # 在以下IP范围内的域名不使用fallback
       - 240.0.0.0/4
-      - 255.255.255.255/32
+      - 127.0.0.1/8
+      - 0.0.0.0/32
+  
+  # DNS解析策略
+  nameserver-policy:
+    "geosite:cn,private":
+      - https://dns.alidns.com/dns-query
+      - https://doh.pub/dns-query
+    "geosite:category-ads-all": rcode://success
+    "geosite:geolocation-!cn":
+      - https://dns.google/dns-query
+      - https://1.1.1.1/dns-query
 
+#######################
+# 代理配置
+#######################
 proxies:
 
 proxy-groups:
 
+proxy-providers:
+
+#######################
+# 规则配置
+#######################
 rule-providers:
   reject:
     type: http
@@ -170,13 +194,6 @@ rule-providers:
     path: ./ruleset/gfw.yaml
     interval: 86400
 
-  greatfire:
-    type: http
-    behavior: domain
-    url: "https://cdn.jsdelivr.net/gh/Loyalsoldier/clash-rules@release/greatfire.txt"
-    path: ./ruleset/greatfire.yaml
-    interval: 86400
-
   tld-not-cn:
     type: http
     behavior: domain
@@ -212,27 +229,23 @@ rule-providers:
     path: ./ruleset/applications.yaml
     interval: 86400
 
-# 规则
+#######################
+# 分流规则
+#######################
 rules:
-  #####################################################################
-  # 规则集
   - RULE-SET,applications,DIRECT
+  - DOMAIN,clash.razord.top,DIRECT
+  - DOMAIN,yacd.haishan.me,DIRECT
   - RULE-SET,private,DIRECT
-  - RULE-SET,lancidr,DIRECT
   - RULE-SET,reject,REJECT
-  
-  - RULE-SET,gfw,PROXY
-  - RULE-SET,greatfire,PROXY
-  - RULE-SET,telegramcidr,PROXY
-  - RULE-SET,google,PROXY
-  
   - RULE-SET,icloud,DIRECT
   - RULE-SET,apple,DIRECT
-
-  - RULE-SET,direct,DIRECT
+  - RULE-SET,google,PROXY
   - RULE-SET,proxy,PROXY
-
+  - RULE-SET,direct,DIRECT
+  - RULE-SET,lancidr,DIRECT
   - RULE-SET,cncidr,DIRECT
-  - RULE-SET,tld-not-cn,PROXY
-
+  - RULE-SET,telegramcidr,PROXY
+  - GEOIP,LAN,DIRECT
+  - GEOIP,CN,DIRECT
   - MATCH,PROXY
