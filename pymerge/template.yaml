@@ -235,4 +235,4 @@ rules:
   - RULE-SET,cncidr,DIRECT
   - RULE-SET,tld-not-cn,PROXY
 
-  - MATCH,Final
+  - MATCH,PROXY
