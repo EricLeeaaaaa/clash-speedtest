@@ -1,0 +1,3 @@
+[submodule "ClashHelper"]
+	path = ClashHelper
+	url = https://github.com/EricLeeaaaaa/ClashHelper.git
