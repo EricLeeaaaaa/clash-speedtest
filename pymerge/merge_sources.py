@@ -29,11 +29,26 @@ class SiteConfig:
 class ProxyNode:
     """代理节点类，用于处理单个节点的逻辑"""
     def __init__(self, node_data: Dict[str, Any]):
+        # 验证必需字段
+        required_fields = ["name", "server", "port", "type"]
+        for field in required_fields:
+            if field not in node_data:
+                raise ValueError(f"Missing required field: {field}")
+
         self.name: str = node_data['name']
         self.server: str = node_data['server']
         self.port: int = node_data['port']
+        self.type: str = node_data['type']
         self.data: Dict[str, Any] = node_data
         self._resolved_ip: Optional[str] = None
+
+        # REALITY协议特殊处理
+        if self.type.lower() == "vless" and "reality-opts" in node_data:
+            reality_opts = node_data["reality-opts"]
+            if not isinstance(reality_opts, dict):
+                raise ValueError("Invalid reality-opts format")
+            if "short-id" not in reality_opts or not reality_opts["short-id"]:
+                raise ValueError("Invalid REALITY short ID")
 
     async def resolve_ip(self) -> Optional[str]:
         """异步解析节点IP地址"""
@@ -111,8 +126,18 @@ class Site:
                 self.log("未找到代理节点")
             return
 
-        # 转换为ProxyNode对象
-        self.nodes = [ProxyNode(node) for node in self._raw_data['proxies']]
+        # 转换为ProxyNode对象，处理无效节点
+        valid_nodes = []
+        for node_data in self._raw_data['proxies']:
+            try:
+                node = ProxyNode(node_data)
+                valid_nodes.append(node)
+            except ValueError as e:
+                if self.verbose != 'quiet':
+                    self.log(f"跳过无效节点 {node_data.get('name', 'unknown')}: {str(e)}")
+                continue
+
+        self.nodes = valid_nodes
 
         # 应用过滤规则
         if self.config.exclusion:
