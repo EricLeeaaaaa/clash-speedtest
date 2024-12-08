@@ -14,17 +14,36 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+          cache: 'pip'
+          
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pyyaml
+
       - name: Set up Go
         uses: actions/setup-go@v4
         with:
           go-version: '>=1.21.0'
+          cache: true
 
       - name: Build clash-speedtest
         run: go build -v -o clash-speedtest
 
+      - name: Merge Sources
+        run: python pymerge/merge_sources.py pymerge/sources.yaml merged_sources.yaml quiet
+
       - name: Run speed test
         id: speedtest
-        run: ./clash-speedtest -c https://raw.githubusercontent.com/mahdibland/V2RayAggregator/master/sub/sub_merge_yaml.yml -output result.yml -min-speed 5
+        run: ./clash-speedtest -c merged_sources.yaml -yaml pymerge/result.yml -csv output.csv -min-speed 10
+
+      - name: Generate Final Config
+        if: steps.speedtest.outcome == 'success'
+        run: python pymerge/merge_template.py pymerge/result.yml pymerge/template.yaml output.yaml quiet
 
       - name: Commit and push result
         if: steps.speedtest.outcome == 'success'
@@ -32,6 +51,6 @@ jobs:
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
           git pull origin main
-          git add result.yml
+          git add output.yaml output.csv pymerge/result.yml
           git commit -m "update: 更新测速结果 $(date '+%Y-%m-%d')" || exit 0
           git push
