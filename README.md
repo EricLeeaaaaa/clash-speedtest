@@ -7,9 +7,6 @@ Features:
 2. 支持 Proxies 和 Proxy Provider 中定义的全部类型代理节点，兼容性跟 Mihomo 一致
 3. 不依赖额外的 Clash/Mihomo 进程实例，单一工具即可完成测试
 4. 代码简单而且开源，不发布构建好的二进制文件，保证你的节点安全
-5. 支持并发测试，提高测速效率
-6. 可自定义测速服务器和下载大小，灵活适应不同需求
-7. 提供独立的测速服务器模块，支持自建测速服务
 
 <img width="1332" alt="image" src="https://github.com/user-attachments/assets/fdc47ec5-b626-45a3-a38a-6d88c326c588">
 
@@ -30,12 +27,16 @@ Usage of clash-speedtest:
         server url for testing proxies (default "https://speed.cloudflare.com")
   -download-size int
         download size for testing proxies (default 50MB)
+  -upload-size int
+        upload size for testing proxies (default 20MB)
   -timeout duration
         timeout for testing proxies (default 5s)
   -concurrent int
         download concurrent size (default 4)
   -output string
         output config file path (default "")
+  -max-latency duration
+        filter latency greater than this value (default 800ms)
   -min-speed float
         filter speed less than this value(unit: MB/s) (default 5)
 
@@ -47,32 +48,32 @@ Usage of clash-speedtest:
 
 # 2. 测试香港节点，使用正则表达式过滤，使用本地文件
 > clash-speedtest -c ~/.config/clash/config.yaml -f 'HK|港'
-序号	节点名称                                  	类型  	下载速度
-1.	Premium|广港|IEPL|05                        	Vmess	3.87MB/s
-2.	Premium|广港|IEPL|03                        	Vmess	2.62MB/s
-3.	Premium|广港|IEPL|04                        	Vmess	1.46MB/s
-4.	Premium|广港|IEPL|01                        	Vmess	484.80KB/s
-5.	Premium|广港|IEPL|02                        	Vmess	N/A
+节点                                        	带宽          	延迟
+Premium|广港|IEPL|01                        	484.80KB/s  	815.00ms
+Premium|广港|IEPL|02                        	N/A         	N/A
+Premium|广港|IEPL|03                        	2.62MB/s    	333.00ms
+Premium|广港|IEPL|04                        	1.46MB/s    	272.00ms
+Premium|广港|IEPL|05                        	3.87MB/s    	249.00ms
 
 # 3. 当然你也可以混合使用
 > clash-speedtest -c "https://domain.com/api/v1/client/subscribe?token=secret&flag=meta,/home/.config/clash/config.yaml"
 
-# 4. 筛选出下载速度大于 5MB/s 的节点，并输出到 filtered.yaml
-> clash-speedtest -c "https://domain.com/api/v1/client/subscribe?token=secret&flag=meta" -output filtered.yaml -min-speed 5
+# 4. 筛选出延迟低于 800ms 且下载速度大于 5MB/s 的节点，并输出到 filtered.yaml
+> clash-speedtest -c "https://domain.com/api/v1/client/subscribe?token=secret&flag=meta" -output filtered.yaml -max-latency 800ms -min-speed 5
 # 筛选后的配置文件可以直接粘贴到 Clash/Mihomo 中使用，或是贴到 Github\Gist 上通过 Proxy Provider 引用。
 ```
 
 ## 测速原理
 
-通过 HTTP GET 请求下载指定大小的文件，默认使用 https://speed.cloudflare.com (50MB) 进行测试，计算下载时间得到下载速度。测试支持并发下载，默认并发数为4，可通过 -concurrent 参数调整。
+通过 HTTP GET 请求下载指定大小的文件，默认使用 https://speed.cloudflare.com (50MB) 进行测试，计算下载时间得到下载速度。
 
 测试结果：
-1. 下载速度 是指下载指定大小文件的速度。当这个数值越高时表明节点的出口带宽越大。
-2. 节点类型 显示了代理节点的协议类型，如 Vmess、Shadowsocks 等。
+1. 带宽 是指下载指定大小文件的速度，即一般理解中的下载速度。当这个数值越高时表明节点的出口带宽越大。
+2. 延迟 是指 HTTP GET 请求拿到第一个字节的的响应时间，即一般理解中的 TTFB。当这个数值越低时表明你本地到达节点的延迟越低，可能意味着中转节点有 BGP 部署、出海线路是 IEPL、IPLC 等。
 
-请注意：
-1. 下载速度高不一定意味着实际使用体验会更好。实际体验还受到延迟、丢包率等因素的影响。
-2. 测试结果可能会因网络环境、时间等因素而有所波动。建议在不同时间段多次测试以获得更准确的结果。
+请注意带宽跟延迟是两个独立的指标，两者并不关联：
+1. 可能带宽很高但是延迟也很高，这种情况下你下载速度很快但是打开网页的时候却很慢，可能是是中转节点没有 BGP 加速，但出海线路带宽很充足。
+2. 可能带宽很低但是延迟也很低，这种情况下你打开网页的时候很快但是下载速度很慢，可能是中转节点有 BGP 加速，但出海线路的 IEPL、IPLC 带宽很小。
 
 Cloudflare 是全球知名的 CDN 服务商，其提供的测速服务器到海外绝大部分的节点速度都很快，一般情况下都没有必要自建测速服务器。
 
@@ -86,16 +87,6 @@ Cloudflare 是全球知名的 CDN 服务商，其提供的测速服务器到海�
 # 此时在本地使用 http://your-server-ip:8080 作为 server-url 即可
 > clash-speedtest --server-url "http://your-server-ip:8080"
 ```
-
-测速服务器功能：
-1. 提供下载测试接口（`/__down`），支持生成指定大小的二进制文件。
-2. 提供上传测试接口（`/__up`），接收上传数据并丢弃。
-
-## 注意事项
-
-1. 请确保你有权限测试这些节点。频繁的大流量测试可能会导致被封号。
-2. 测试结果仅供参考。实际使用体验可能会因为网络环境、时间等因素而有所不同。
-3. 使用 -output 参数输出筛选后的配置文件时，请注意保护你的节点信息安全。
 
 ## License
 
