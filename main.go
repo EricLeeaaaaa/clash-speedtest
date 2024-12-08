@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/csv"
 	"flag"
 	"fmt"
 	"os"
@@ -21,7 +22,8 @@ var (
 	downloadSize      = flag.Int("download-size", 50*1024*1024, "download size for testing proxies")
 	timeout           = flag.Duration("timeout", time.Second*5, "timeout for testing proxies")
 	concurrent        = flag.Int("concurrent", 4, "download concurrent size")
-	outputPath        = flag.String("output", "", "output config file path")
+	yamlPath          = flag.String("yaml", "", "output yaml config file path")
+	csvPath           = flag.String("csv", "", "output speed test csv results")
 	minSpeed          = flag.Float64("min-speed", 5, "filter speed less than this value(unit: MB/s)")
 )
 
@@ -68,12 +70,20 @@ func main() {
 
 	printResults(results)
 
-	if *outputPath != "" {
+	if *yamlPath != "" {
 		err = saveConfig(results)
 		if err != nil {
-			log.Fatalln("save config file failed: %v", err)
+			log.Fatalln("save yaml config file failed: %v", err)
 		}
-		fmt.Printf("\nsave config file to: %s\n", *outputPath)
+		fmt.Printf("\nsave yaml config file to: %s\n", *yamlPath)
+	}
+
+	if *csvPath != "" {
+		err = saveCSV(results)
+		if err != nil {
+			log.Fatalln("save csv file failed: %v", err)
+		}
+		fmt.Printf("save csv file to: %s\n", *csvPath)
 	}
 }
 
@@ -150,5 +160,42 @@ func saveConfig(results []*speedtester.Result) error {
 		return err
 	}
 
-	return os.WriteFile(*outputPath, yamlData, 0o644)
+	return os.WriteFile(*yamlPath, yamlData, 0o644)
+}
+
+func saveCSV(results []*speedtester.Result) error {
+	file, err := os.Create(*csvPath)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
+	writer := csv.NewWriter(file)
+	defer writer.Flush()
+
+	// 写入CSV头
+	headers := []string{
+		"排名",
+		"节点名称",
+		"下载速度",
+	}
+	err = writer.Write(headers)
+	if err != nil {
+		return err
+	}
+
+	// 写入数据
+	for i, result := range results {
+		row := []string{
+			fmt.Sprintf("%d", i+1),
+			result.ProxyName,
+			result.FormatDownloadSpeed(),
+		}
+		err := writer.Write(row)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
